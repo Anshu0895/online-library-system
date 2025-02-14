@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
+	"time"
 )
 
 func CreateRequestEvent(c *gin.Context) {
@@ -33,7 +34,7 @@ func ApproveRequestEvent(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Request event not found"})
 		return
 	}
-	requestEvent.ApprovalDate = "today's date" // You can set it to the current date in real implementation
+	requestEvent.ApprovalDate = time.Now().Format("2006-01-02") 
 	if err := database.DB.Save(&requestEvent).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,10 +1,12 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"online-library-system/controllers"
+	"online-library-system/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
 func LibraryRoutes(router *gin.Engine) {
-	router.POST("/libraries", controllers.CreateLibrary)
+	router.POST("/libraries", middleware.RoleBasedAccessControl("Owner"), controllers.CreateLibrary)
 }

@@ -29,6 +29,14 @@ func GetUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, user)
 }
+func GetUsers(c *gin.Context) {
+	var users []models.User
+	if err := database.DB.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, users)
+}
 
 func UpdateUser(c *gin.Context) {
 	var user models.User

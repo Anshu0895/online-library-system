@@ -13,6 +13,17 @@ func CreateIssueRegistry(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	book := models.BookInventory{}
+	if err := database.DB.First(&book, "isbn = ?", issueRegistry.ISBN).Error; err != nil || book.AvailableCopies <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Book not available"})
+		return
+	}
+
+	book.AvailableCopies -= 1
+	if err := database.DB.Save(&book).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	if err := database.DB.Create(&issueRegistry).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
