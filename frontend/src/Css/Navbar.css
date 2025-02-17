@@ -1,0 +1,56 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fcc52d;
+    color:black;
+    z-index: 20;
+    position: relative;
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 10%;
+    margin-right: 10px;
+  }
+  
+  .title {
+    margin: 0;
+    font-size: 45px;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+  
+  
+  .nav-button {
+    text-decoration: none;
+    color: #fff;
+    background-color:black;
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+    
+  }
+  
+  .nav-button:hover {
+    background-color: #1e78ad;
+  }
+  .search-container {
+  margin-left: auto;
+}
+
+.search-input {
+  padding: 7px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: rgb(240, 236, 236);
+}

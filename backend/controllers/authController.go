@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -51,13 +52,16 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	//debug
+	fmt.Printf("Received credentials: %+v\n", credentials)
 
 	user, err := services.GetUserByEmail(credentials.Email)
 	if err != nil || bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password)) != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
-
+	//debug
+	fmt.Printf("Retrieved user: %+v\n", user)
 	// Generate JWT token
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
@@ -75,5 +79,5 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString, "role": user.Role})
 }

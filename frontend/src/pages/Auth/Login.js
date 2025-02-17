@@ -1,19 +1,14 @@
-import React, { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../contexts/AuthContext'; // Ensure this import is correct
+import React, { useState } from 'react';
 import LoginForm from '../../Components/Auth/LoginForm';
 
 const Login = () => {
-  const { setAuthData } = useContext(AuthContext); // Check this line
-  const navigate = useNavigate();
+  const [token, setToken] = useState('');
 
   const handleLoginSuccess = (token) => {
-    // Store token in local storage or context
+    setToken(token);
+    // Save the token in local storage or update the application state
     localStorage.setItem('token', token);
-    setAuthData({ token });
-
-    // Redirect to the dashboard or home page
-    navigate('/dashboard');
+    // Redirect to a protected route or update the UI as needed
   };
 
   return (

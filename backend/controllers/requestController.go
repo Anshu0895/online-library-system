@@ -1,24 +1,42 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-func CreateRequestEvent(c *gin.Context) {
-	var requestEvent models.RequestEvent
-	if err := c.ShouldBindJSON(&requestEvent); err != nil {
+func RaiseIssueRequest(c *gin.Context) {
+	var request models.RequestEvent
+	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := database.DB.Create(&requestEvent).Error; err != nil {
+
+	// Check availability of the book
+	var book models.BookInventory
+	if err := database.DB.First(&book, "isbn = ?", request.BookID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+		return
+	}
+
+	if book.AvailableCopies <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Book not available"})
+		return
+	}
+
+	// Create Issue Request
+	request.RequestDate = time.Now()
+	request.RequestType = "issue"
+	if err := database.DB.Create(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, requestEvent)
+	c.JSON(http.StatusCreated, gin.H{"message": "Issue request raised", "request": request})
+
 }
 
 func GetRequestEvents(c *gin.Context) {
@@ -27,17 +45,84 @@ func GetRequestEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, requestEvents)
 }
 
-func ApproveRequestEvent(c *gin.Context) {
-	var requestEvent models.RequestEvent
-	id := c.Param("id")
-	if err := database.DB.First(&requestEvent, "req_id = ?", id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Request event not found"})
+func GetRequestEventsByID(c *gin.Context) {
+	reqID := c.Param("id")
+	var request models.RequestEvent
+	if err := database.DB.First(&request, "req_id = ?", reqID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Request not found"})
 		return
 	}
-	requestEvent.ApprovalDate = time.Now().Format("2006-01-02") 
-	if err := database.DB.Save(&requestEvent).Error; err != nil {
+	c.JSON(http.StatusOK, request)
+}
+
+func ApproveIssueRequest(c *gin.Context) {
+	reqID := c.Param("id")
+	var request models.RequestEvent
+
+	// Get Request Details
+	if err := database.DB.First(&request, "req_id = ?", reqID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Request not found"})
+		return
+	}
+
+	// Check Book Availability
+	var book models.BookInventory
+	if err := database.DB.First(&book, "isbn = ?", request.BookID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
+		return
+	}
+	if book.AvailableCopies <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Book not available"})
+		return
+	}
+
+	// Approve Request
+	request.ApprovalDate = time.Now()
+	request.ApproverID = 3
+	if err := database.DB.Save(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, requestEvent)
+
+	// Update Book Availability and Create Issue Registry
+	book.AvailableCopies--
+	if err := database.DB.Save(&book).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	issue := models.IssueRegistry{
+		ISBN:               request.BookID,
+		ReaderID:           request.ReaderID,
+		IssueApproverID:    request.ApproverID,
+		IssueStatus:        "Issued",
+		IssueDate:          time.Now(),
+		ExpectedReturnDate: time.Now().AddDate(0, 0, 14), // 2 weeks from now
+	}
+	if err := database.DB.Create(&issue).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Issue request approved", "issue": issue})
+}
+func RejectIssueRequest(c *gin.Context) {
+	reqID := c.Param("id")
+	var request models.RequestEvent
+
+	// Get Request Details
+	if err := database.DB.First(&request, "req_id = ?", reqID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Request not found"})
+		return
+	}
+
+	// Reject Request
+	request.ApprovalDate = time.Now()
+	request.ApproverID = 3
+	request.RequestType = "rejected"
+	if err := database.DB.Save(&request).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Issue request rejected"})
 }

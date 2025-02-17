@@ -68,19 +68,25 @@ func GetBook(c *gin.Context) {
 func RemoveBook(c *gin.Context) {
 	var book models.BookInventory
 	isbn := c.Param("isbn")
+
+	// Check if the book exists
 	if err := database.DB.First(&book, "isbn = ?", isbn).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
 	}
-	if book.TotalCopies > book.AvailableCopies {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Cannot remove a book with issued copies"})
-		return
+
+	// Check if there are available copies to decrement
+	if book.AvailableCopies > 0 {
+		book.AvailableCopies-- // Decrement only the available copies
+		book.TotalCopies--
+		if err := database.DB.Save(&book).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"message": "Available copy removed"})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No available copies to remove"})
 	}
-	if err := database.DB.Delete(&book).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"message": "Book removed"})
 }
 func SearchBooks(c *gin.Context) {
 	title := c.Query("title")

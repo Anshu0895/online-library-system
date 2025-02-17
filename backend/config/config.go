@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	//   DBConnectionString string
-	ServerPort   string
-	JWTSecretKey string
+	ServerPort    string
+	JWTSecretKey  string
+	AllowedOrigin string
 }
 
 // LoadConfig loads the configuration settings from the .env file
@@ -20,9 +20,9 @@ func LoadConfig() *Config {
 	}
 
 	config := &Config{
-		// DBConnectionString: os.Getenv("DB_CONNECTION_STRING"),
-		ServerPort:   os.Getenv("SERVER_PORT"),
-		JWTSecretKey: os.Getenv("JWT_SECRET_KEY"),
+		ServerPort:    os.Getenv("SERVER_PORT"),
+		JWTSecretKey:  os.Getenv("JWT_SECRET_KEY"),
+		AllowedOrigin: os.Getenv("ALLOWED_ORIGIN"),
 	}
 
 	return config

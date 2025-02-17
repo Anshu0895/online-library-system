@@ -1,0 +1,65 @@
+/* HomePage.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    height: 88vh;
+    background-color:#fcc52d ;
+  }
+  
+  .left-side {
+    width: 45%;
+    height: 80%;
+  }
+  .left-side h1{
+    font-size:70px;
+  }
+  .left-side p{
+    width: 70%;
+    font-size: larger;
+  }
+  
+  .right-side {
+    width: 45%;
+    position: relative;
+    
+  }
+  
+  .book-stack {
+    width: 100%;
+    position: absolute; 
+  right: 0;
+  }
+  .book-stack:first-child {
+    z-index: 0; /* Ensure this image is in the front */
+    top: -650px;
+  }
+  .book-stack:last-child {
+    z-index: 1; /* Ensure this image is in the back */
+    top: -40px;  /* Adjust as needed for desired overlap */
+     /* Adjust as needed for desired overlap */
+  }
+  .get-issued{
+    margin: 30px;
+    padding: 10px;
+  }
+  .get-button{
+    text-decoration: none;
+    color: #fff;
+    background-color:black;
+    padding: 10px 55px;
+    border-radius: 5px;
+    margin-left: -38px ;
+    transition: background-color 0.3s;
+    
+  }
+  .get-button:hover {
+    background-color: #1e78ad;
+  }
