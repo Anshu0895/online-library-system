@@ -9,4 +9,6 @@ import (
 
 func LibraryRoutes(router *gin.Engine) {
 	router.POST("/libraries", middleware.RoleBasedAccessControl("Owner"), controllers.CreateLibrary)
+	router.GET("/libraries", middleware.RoleBasedAccessControl("Owner"), controllers.GetLibraries)
+
 }

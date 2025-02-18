@@ -45,13 +45,15 @@
   }
   
   button {
-    width: 100%;
-    padding: 10px;
+    width: 30%;
+    padding: 10px 50px;
     background-color:#fcc52d;
     color: black;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-left: 12px;
+    
   }
   
   button:hover {

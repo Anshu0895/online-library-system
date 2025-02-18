@@ -1,82 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import '../Css/ReaderDashboard.css';
 
 const ReaderDashboard = ({ token }) => {
+  const [query, setQuery] = useState('');
   const [books, setBooks] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await axios.get('/books', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setBooks(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchBooks();
-  }, [token]);
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    if (searchQuery) {
-      setFilteredBooks(books.filter(book =>
-        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.publisher.toLowerCase().includes(searchQuery.toLowerCase())
-      ));
-    } else {
-      setFilteredBooks([]);
+    try {
+      const response = await api.get('/books/search', {
+        headers: {
+          Authorization: `${token}`,
+        },
+        params: { title: query },
+      });
+      console.log("Search response:", response.data); // Debug log
+      setBooks(response.data);
+    } catch (err) {
+      console.error("Search error:", err); // Debug log
+      setError('Failed to search books');
     }
   };
 
-  const handleBorrowRequest = (bookId) => {
-    // Handle borrow request logic here
-    console.log(`Borrow request for book ID: ${bookId}`);
+  const handleBorrowRequest = async (isbn) => {
+    try {
+      console.log("Sending ISBN:", isbn); // Debug log to ensure correct ISBN is sent
+      const response = await api.post('/raise-request', { book_id: isbn }, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      console.log("Borrow request response:", response.data); // Debug log
+      setSuccess('Borrow request raised successfully');
+    } catch (err) {
+      console.error("Borrow request error:", err); // Debug log
+      setError('Failed to raise borrow request');
+    }
   };
 
   return (
     <div className='reader-box'>
-    <div className="dashboard-container">
-      <h2>Reader Dashboard</h2>
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search by title, author, or publisher"
-          value={searchQuery}
-          onChange={handleSearch}
-        />
+      <div className="dashboard-container">
+        <h2>Reader Dashboard</h2>
+        {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
+        <form onSubmit={handleSearch}>
+          <div className="form-group">
+            <label htmlFor="query">Search Books:</label>
+            <input
+              type="text"
+              id="query"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Search</button>
+        </form>
+        <h3>Book Results</h3>
+        <ul className="book-list"> 
+          {books.map((book) => (
+            <li key={book.isbn} className="book-item"> {/* Added class book-item */}
+              <span className="book-title"><strong>Title:</strong> {book.title}</span>
+              <span className="book-author"><strong>Author:</strong> {book.authors}</span>
+              <span className="book-publisher"><strong>Publisher:</strong> {book.publisher}</span>
+              <button className="borrow-button" onClick={() => handleBorrowRequest(book.isbn)}>Borrow</button>
+            </li>
+          ))}
+        </ul>
       </div>
-      <div className="book-list">
-        {searchQuery && filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <div key={book.id} className="book-card">
-              <h3>{book.title}</h3>
-              <p>Author: {book.author}</p>
-              <p>Publisher: {book.publisher}</p>
-              <p>Status: {book.isAvailable ? 'Available' : 'Not Available'}</p>
-              <button onClick={() => handleBorrowRequest(book.id)}>Borrow</button>
-            </div>
-          ))
-        ) : (
-          books.map((book) => (
-            <div key={book.id} className="book-card">
-              <h3>{book.title}</h3>
-              <p>Author: {book.author}</p>
-              <p>Publisher: {book.publisher}</p>
-              <p>Status: {book.isAvailable ? 'Available' : 'Not Available'}</p>
-              <button onClick={() => handleBorrowRequest(book.id)}>Borrow</button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
     </div>
   );
 };

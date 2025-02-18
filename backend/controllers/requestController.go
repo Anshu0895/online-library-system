@@ -1,12 +1,12 @@
 package controllers
 
 import (
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 func RaiseIssueRequest(c *gin.Context) {
@@ -15,7 +15,7 @@ func RaiseIssueRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	fmt.Println("Received book_id:", request.BookID) // Debug log
 	// Check availability of the book
 	var book models.BookInventory
 	if err := database.DB.First(&book, "isbn = ?", request.BookID).Error; err != nil {

@@ -1,0 +1,91 @@
+/* AdminDashboard.css */
+
+.admin-dashboard {
+    padding: 20px;
+    margin: 8px;
+    background-color: black;
+  }
+  .admin-dashboard h2,h3 {
+   color: white;
+  }
+  .error-message {
+    color: red;
+  }
+  
+  .success-message {
+    color: green;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+   /* background-color: black; */
+   padding: 10px;
+  }
+  
+  .request-list, .book-list {
+    list-style-type: none;
+    padding: 0;
+    
+  }
+  
+  .request-item, .book-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .request-item button, .book-item button {
+    margin-left: 10px;
+    
+  }
+  
+  .accept-button {
+    width: 10% ;
+    background-color:rgb(49, 184, 44);
+    color: white;
+    border: none;
+    padding: 10px 8px;
+    border-radius: 4px;
+    margin: 10px;
+  }
+  
+  .accept-button:hover {
+    background-color: #45a049;
+  }
+  
+  .reject-button {
+    width: 10% ;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 8px;
+    border-radius: 4px;
+  }
+  
+  .reject-button:hover {
+    background-color: #e53935;
+  }
+  .accept{
+    width: 10% ;
+    background-color: #3659f4;
+    color: white;
+    border: none;
+    padding: 10px 8px;
+    border-radius: 4px;
+  }
+  .delete{
+    width: 10% ;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 8px;
+    border-radius: 4px;
+  }
+  .all-books{
+    
+    justify-content: space-between;
+  }

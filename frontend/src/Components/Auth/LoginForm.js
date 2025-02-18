@@ -38,7 +38,7 @@ const LoginForm = ({ onLoginSuccess }) => {
           navigate('/admin');
           break;
         case 'Reader':
-          navigate('/books');
+          navigate('/reader');
           break;
         default:
           navigate('/');

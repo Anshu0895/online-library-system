@@ -7,6 +7,15 @@ import (
 	"online-library-system/models"
 )
 
+func GetLibraries(c *gin.Context) {
+	var libraries []models.Library
+	if err := database.DB.Find(&libraries).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, libraries)
+}
 func CreateLibrary(c *gin.Context) {
 	var library models.Library
 	if err := c.ShouldBindJSON(&library); err != nil {
@@ -16,7 +25,7 @@ func CreateLibrary(c *gin.Context) {
 	// Check if the library already exists
 	existingLibrary := models.Library{}
 	if err := database.DB.Where("name = ?", library.Name).First(&existingLibrary).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Library with the same name already exists"})
+		c.JSON(http.StatusConflict, gin.H{"error": "Library with this name already exists"})
 		return
 	}
 

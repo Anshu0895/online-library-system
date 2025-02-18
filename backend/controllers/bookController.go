@@ -88,6 +88,7 @@ func RemoveBook(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No available copies to remove"})
 	}
 }
+
 func SearchBooks(c *gin.Context) {
 	title := c.Query("title")
 	author := c.Query("author")
@@ -118,3 +119,19 @@ func SearchBooks(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, books)
 }
+
+// func SearchBooks(c *gin.Context) {
+// 	query := c.Query("q")
+// 	fmt.Println("Received query:", query) // Debug log
+// 	var books []models.BookInventory
+// 	dbQuery := database.DB
+// 	if query != "" {
+// 		dbQuery = dbQuery.Where("title LIKE ? OR authors LIKE ? OR publisher LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+// 	}
+// 	if err := dbQuery.Find(&books).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+// 		return
+// 	}
+// 	fmt.Println("Books found:", books) // Debug log
+// 	c.JSON(http.StatusOK, books)
+// }
