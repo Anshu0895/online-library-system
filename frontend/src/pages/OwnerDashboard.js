@@ -39,9 +39,9 @@ const OwnerDashboard = ({ token }) => {
       setSuccess('Library created successfully');
     } catch (err) {
       if (err.response && err.response.status === 409) {
-        setError('Library with this name already exists');
+        setError(err.response.data.error);
       } else {
-        setError('Failed to create library');
+        setError(err.response.data.error);
       }
     }
   };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import '../Css/ReaderDashboard.css';
 
-const ReaderDashboard = ({ token }) => {
+const ReaderDashboard = ({ token, user }) => {
   const [query, setQuery] = useState('');
   const [books, setBooks] = useState([]);
   const [error, setError] = useState('');
@@ -29,9 +29,11 @@ const ReaderDashboard = ({ token }) => {
   };
 
   const handleBorrowRequest = async (isbn) => {
+    
     try {
-      console.log("Sending ISBN:", isbn); // Debug log to ensure correct ISBN is sent
-      const response = await api.post('/raise-request', { book_id: isbn }, {
+      // const parsedReaderID = parseInt(user.id, 10);
+      // console.log("Sending ISBN and reader id:", isbn,parsedReaderID); // Debug log to ensure correct ISBN is sent
+      const response = await api.post('/raise-request', { book_id: isbn}, {
         headers: {
           Authorization: `${token}`,
         },

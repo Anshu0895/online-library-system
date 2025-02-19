@@ -18,13 +18,14 @@ const SignupForm = ({ onSignupSuccess }) => {
     setError('');
 
     try {
+      const parsedLibID = parseInt(libID, 10);
       const response = await api.post('/signup', {
         name,
         email,
         password,
-        contactNumber,
+        contact_number: contactNumber,
         role,
-        libID,
+        lib_id: parsedLibID,
       });
       const { token } = response.data;
 
@@ -35,9 +36,9 @@ const SignupForm = ({ onSignupSuccess }) => {
         style: { backgroundColor: 'black', color: 'white' },
       });
     } catch (err) {
-      setError('Failed to sign up');
+      setError(err.response.data.error);
 
-      toast.error('Failed to sign up. Please try again.',{
+      toast.error(err.response.data.error,{
         position: "top-center",
         style: { backgroundColor: 'black', color: 'white' },
       });

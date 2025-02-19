@@ -13,10 +13,13 @@ const AdminDashboard = ({ token }) => {
   const [currentBook, setCurrentBook] = useState(null);
   const [newBook, setNewBook] = useState({
     isbn: '',
+    lib_id:'',
     title: '',
     authors: '',
     publisher: '',
-    totalCopies: 0,
+    version:'',
+    total_copies: '',
+    available_copies: '',
   });
 
   const fetchBooks = async () => {
@@ -102,6 +105,7 @@ const AdminDashboard = ({ token }) => {
           Authorization: `${token}`,
         },
       });
+      setRequests(requests.filter(request => request.req_id !== requestId));
       setSuccess('Request approved successfully');
       fetchRequests(); // Refresh requests list
     } catch (err) {
@@ -116,6 +120,7 @@ const AdminDashboard = ({ token }) => {
           Authorization: `${token}`,
         },
       });
+      setRequests(requests.filter(request => request.req_id !== requestId));
       setSuccess('Request rejected successfully');
       fetchRequests(); // Refresh requests list
     } catch (err) {
@@ -150,6 +155,16 @@ const AdminDashboard = ({ token }) => {
             />
           </div>
           <div className="form-group">
+            <label htmlFor="lib_id">LIB_ID:</label>
+            <input
+              type="text"
+              id="lib_id"
+              value={newBook.lib_id}
+              onChange={(e) => setNewBook({ ...newBook, lib_id: parseInt(e.target.value, 10)  })}
+              required
+            />
+          </div>
+          <div className="form-group">
             <label htmlFor="title">Title:</label>
             <input
               type="text"
@@ -178,14 +193,34 @@ const AdminDashboard = ({ token }) => {
               onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
               required
             />
+            </div>
+             <div className="form-group">
+            <label htmlFor="version">Version:</label>
+            <input
+              type="text"
+              id="version"
+              value={newBook.version}
+              onChange={(e) => setNewBook({ ...newBook, version: e.target.value })}
+              required
+            />
           </div>
           <div className="form-group">
-            <label htmlFor="totalCopies">Total Copies:</label>
+            <label htmlFor=" total_copies">Total Copies:</label>
             <input
               type="number"
-              id="totalCopies"
-              value={newBook.totalCopies}
-              onChange={(e) => setNewBook({ ...newBook, totalCopies: e.target.value })}
+              id="total_copies"
+              value={newBook.total_copies}
+              onChange={(e) => setNewBook({ ...newBook,  total_copies: parseInt(e.target.value, 10) })}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="available_copies">Available Copies:</label>
+            <input
+              type="number"
+              id="available_copies"
+              value={newBook.available_copies}
+              onChange={(e) => setNewBook({ ...newBook, available_copies: parseInt(e.target.value, 10) })}
               required
             />
           </div>
@@ -214,12 +249,25 @@ const AdminDashboard = ({ token }) => {
       )}
 <div className='all-books'>
   <h3>All Books</h3>
+  <div className="book-list-header">
+    <span>ISBN</span>
+    <span>Title</span>
+    <span>Authors</span>
+    <span>Publisher</span>
+    <span>Total Copies</span>
+    <span>Available Copies</span>
+    <span>Actions</span>
+    <span>Actions</span>
+  </div>
   <ul className="book-list">
     {books.map((book) => (
       <li key={book.isbn} className="book-item">
+         <span>{book.isbn}</span>
         <span>{book.title}</span>
         <span>{book.authors}</span>
         <span>{book.publisher}</span>
+        <span>{book.total_copies}</span>
+        <span>{book.available_copies}</span>
         <button className='accept' onClick={() => handleEditClick(book)}>Update</button>
         <button className='delete' onClick={() => handleDeleteBook(book.isbn)}>Delete</button>
       </li>
@@ -270,12 +318,22 @@ const AdminDashboard = ({ token }) => {
       />
     </div>
     <div className="form-group">
-      <label htmlFor="totalCopies">Total Copies:</label>
+      <label htmlFor="total_copies">Total Copies:</label>
       <input
         type="number"
-        id="totalCopies"
-        value={currentBook.totalCopies}
-        onChange={(e) => setCurrentBook({ ...currentBook, totalCopies: e.target.value })}
+        id="total_copies"
+        value={currentBook.total_copies}
+        onChange={(e) => setCurrentBook({ ...currentBook, total_copies: parseInt(e.target.value, 10) })}
+        required
+      />
+      </div>
+      <div className="form-group">
+      <label htmlFor="available_copies:">Available Copies:</label>
+      <input
+        type="number"
+        id="available_copies:"
+        value={currentBook.available_copies}
+        onChange={(e) => setCurrentBook({ ...currentBook, available_copies: parseInt(e.target.value, 10) })}
         required
       />
     </div>
