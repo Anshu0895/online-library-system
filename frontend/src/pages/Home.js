@@ -2,6 +2,10 @@ import React from "react";
 import "../Css/HomePage.css"; 
 import right2 from "../assests/right2.png"; 
 import rightback from "../assests/rightback.png";
+import instagramIcon from "../assests/instagram.png"
+import LinkdeinIcon from "../assests/linkedin.png"
+import YoutubeIcon from "../assests/youtube.png"
+import MailIcon from "../assests/email.png"
 import { Link } from "react-router-dom";
 
 const HomePage = () => {
@@ -18,6 +22,19 @@ const HomePage = () => {
         <div className="get-issued">
       <Link to="/login" className="get-button">Get issued</Link>
       </div>
+      <div className="social-icons">
+          
+            <img src={LinkdeinIcon} alt="Linkdein" className="social-icon" />
+          
+          
+            <img src={instagramIcon} alt="insta" className="social-icon" />
+          
+          
+            <img src={YoutubeIcon} alt="toutube" className="social-icon" />
+          
+            <img src={MailIcon} alt="mail" className="social-icon" />
+        </div>
+    
       </div>
       
       <div className="right-side">

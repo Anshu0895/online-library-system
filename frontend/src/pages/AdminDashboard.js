@@ -13,14 +13,15 @@ const AdminDashboard = ({ token }) => {
   const [currentBook, setCurrentBook] = useState(null);
   const [newBook, setNewBook] = useState({
     isbn: '',
-    lib_id:'',
+    lib_id: '',
     title: '',
     authors: '',
     publisher: '',
-    version:'',
+    version: '',
     total_copies: '',
     available_copies: '',
   });
+  const [reload, setReload] = useState(false);
 
   const fetchBooks = async () => {
     try {
@@ -37,12 +38,12 @@ const AdminDashboard = ({ token }) => {
 
   const fetchRequests = async () => {
     try {
-      const response = await api.get('/requests', {
+      const response = await api.get('/pending-requests', {
         headers: {
           Authorization: `${token}`,
         },
       });
-      setRequests(response.data);
+      setRequests(Array.isArray(response.data.requests) ? response.data.requests : []);
     } catch (err) {
       setError('Failed to fetch requests');
     }
@@ -105,9 +106,12 @@ const AdminDashboard = ({ token }) => {
           Authorization: `${token}`,
         },
       });
-      setRequests(requests.filter(request => request.req_id !== requestId));
-      setSuccess('Request approved successfully');
-      fetchRequests(); // Refresh requests list
+      if (response.status === 200) {
+        setRequests((prevRequests) => prevRequests.filter((request) => request.req_id !== requestId));
+        setSuccess('Request approved successfully');
+      } else {
+        setError('Failed to approve request');
+      }
     } catch (err) {
       setError('Failed to approve request');
     }
@@ -120,9 +124,12 @@ const AdminDashboard = ({ token }) => {
           Authorization: `${token}`,
         },
       });
-      setRequests(requests.filter(request => request.req_id !== requestId));
-      setSuccess('Request rejected successfully');
-      fetchRequests(); // Refresh requests list
+      if (response.status === 200) {
+        setRequests((prevRequests) => prevRequests.filter((request) => request.req_id !== requestId));
+        setSuccess('Request rejected successfully');
+      } else {
+        setError('Failed to reject request');
+      }
     } catch (err) {
       setError('Failed to reject request');
     }
@@ -131,9 +138,9 @@ const AdminDashboard = ({ token }) => {
   useEffect(() => {
     fetchBooks();
     fetchRequests();
-  }, []);
-
+  }, [reload]);
   return (
+    <div className='bap'>
     <div className='admin-dashboard'>
       <h2>Admin Dashboard</h2>
       {error && <p className="error-message">{error}</p>}
@@ -341,6 +348,7 @@ const AdminDashboard = ({ token }) => {
   </form>
 )}
 
+    </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import LoginForm from '../../Components/Auth/LoginForm';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [token, setToken] = useState('');
   const [role, setRole] = useState('');
 
@@ -15,7 +15,7 @@ const Login = () => {
     localStorage.setItem('role', role);
     // Redirect to a protected route or update the UI as needed
 
-    
+    onLoginSuccess(token);
   };
 
   return (

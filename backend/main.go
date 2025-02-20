@@ -34,7 +34,6 @@ func main() {
 	routes.BookRoutes(router)
 	routes.UserRoutes(router)
 	routes.RequestRoutes(router)
-	routes.IssueRoutes(router)
 
 	// Start Server
 	router.Run(cfg.ServerPort)

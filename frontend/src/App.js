@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes,useNavigate } from 'react-router-dom';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import Home from './pages/Home'
@@ -13,18 +13,22 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from './utils/api';
 
+
+
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
+      fetchUserData(storedToken);
     }
   }, []);
   const fetchUserData = async (token) => {
     try {
-      const response = await api.get('/user', {
+      const response = await api.get('/users', {
         headers: {
           Authorization: `${token}`,
         },
@@ -38,12 +42,19 @@ const App = () => {
   const handleLoginSuccess = (token) => {
     setToken(token);
     localStorage.setItem('token', token);
+    fetchUserData(token);
+  };
+  const handleLogout = () => {
+    setToken(null);
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/');
   };
   return (
     
     
-      <Router>
-      <Navbar/>
+      <>
+      <Navbar token={token} handleLogout={handleLogout} />
 
      
         <Routes>
@@ -57,7 +68,7 @@ const App = () => {
         
         </Routes>
         <ToastContainer />
-      </Router>
+        </>
       
   );
 };

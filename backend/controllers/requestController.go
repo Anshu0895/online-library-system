@@ -30,7 +30,7 @@ func RaiseIssueRequest(c *gin.Context) {
 
 	// Create Issue Request
 	request.RequestDate = time.Now()
-	request.RequestType = "issue"
+	request.RequestType = "pending"
 	if err := database.DB.Create(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -54,7 +54,17 @@ func GetRequestEventsByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, request)
 }
+//Get Pending Requests
+func GetPendingRequests(c *gin.Context) {
+    var requests []models.RequestEvent
 
+    if err := database.DB.Where("request_type = ?", "pending").Find(&requests).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"requests": requests})
+}
 func ApproveIssueRequest(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent
@@ -79,6 +89,7 @@ func ApproveIssueRequest(c *gin.Context) {
 	// Approve Request
 	request.ApprovalDate = time.Now()
 	request.ApproverID = 3
+	request.RequestType = "approved"
 	if err := database.DB.Save(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

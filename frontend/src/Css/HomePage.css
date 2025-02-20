@@ -9,9 +9,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    height: 88vh;
-    background-color:#fcc52d ;
+    padding: 30px;
+    height: 86vh;
+    background: #F7971E;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #FFD200, #F7971E);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #FFD200, #F7971E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
   }
   
   .left-side {
@@ -24,6 +27,7 @@ body {
   .left-side p{
     width: 70%;
     font-size: larger;
+    text-align: left;
   }
   
   .right-side {
@@ -33,18 +37,18 @@ body {
   }
   
   .book-stack {
-    width: 100%;
+    width: 860px;
     position: absolute; 
-  right: 0;
+    right: 0;
   }
   .book-stack:first-child {
-    z-index: 0; /* Ensure this image is in the front */
+    z-index: 0;
     top: -650px;
   }
   .book-stack:last-child {
-    z-index: 1; /* Ensure this image is in the back */
-    top: -40px;  /* Adjust as needed for desired overlap */
-     /* Adjust as needed for desired overlap */
+    z-index: 1; 
+    top: -40px;  
+     
   }
   .get-issued{
     margin: 30px;
@@ -63,3 +67,15 @@ body {
   .get-button:hover {
     background-color: #1e78ad;
   }
+  .social-icons {
+    margin-top: 25px;
+ 
+  }
+  
+  .social-icon {
+    width: 40px;
+    height: 40px;
+    margin: 8px 8px;
+
+  }
+  

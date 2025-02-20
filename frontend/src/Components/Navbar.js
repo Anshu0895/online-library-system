@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import logo from "../assests/stack-of-books.png"
 import "../Css/Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({token,handleLogout}) => {
   return (
     <nav className="navbar">
       <div className="logo-container">
@@ -26,8 +26,14 @@ const Navbar = () => {
         />
       </div>
       <div>
-        <Link to="/login" className="nav-button">Login</Link>
-        <Link to="/signup" className="nav-button">Sign Up</Link>
+      {token ? (
+          <button onClick={handleLogout} className="nav-button">Logout</button>
+        ) : (
+          <>
+            <Link to="/login" className="nav-button">Login</Link>
+            <Link to="/signup" className="nav-button">Sign Up</Link>
+          </>
+        )}
       </div>
       
     </nav>

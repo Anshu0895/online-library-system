@@ -1,9 +1,16 @@
 /* AdminDashboard.css */
-
+.bap{
+  background: #F7971E;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #FFD200, #F7971E);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #FFD200, #F7971E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+height: 100%;
+padding: 10px;
+}
 .admin-dashboard {
-    padding: 20px;
+    padding: 25px;
     margin: 8px;
     background-color: black;
+    border-radius: 8px;
   }
   .admin-dashboard h2,h3 {
    color: white;

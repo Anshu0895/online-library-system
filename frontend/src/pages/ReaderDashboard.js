@@ -18,7 +18,12 @@ const ReaderDashboard = ({ token, user }) => {
         headers: {
           Authorization: `${token}`,
         },
-        params: { title: query },
+        params: {
+          title: query,
+        //   author: query,
+        //   publisher: query,
+        },
+       
       });
       console.log("Search response:", response.data); // Debug log
       setBooks(response.data);
@@ -31,8 +36,7 @@ const ReaderDashboard = ({ token, user }) => {
   const handleBorrowRequest = async (isbn) => {
     
     try {
-      // const parsedReaderID = parseInt(user.id, 10);
-      // console.log("Sending ISBN and reader id:", isbn,parsedReaderID); // Debug log to ensure correct ISBN is sent
+      
       const response = await api.post('/raise-request', { book_id: isbn}, {
         headers: {
           Authorization: `${token}`,
@@ -58,6 +62,7 @@ const ReaderDashboard = ({ token, user }) => {
             <input
               type="text"
               id="query"
+              placeholder="Search by author, title, or publisher"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               required

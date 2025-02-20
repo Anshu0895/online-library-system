@@ -3,10 +3,15 @@
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    background-color: #fcc52d;
+    /* background-color: #fcc52d; */
+    background: #F7971E;  /* fallback for old browsers */
+background: -webkit-linear-gradient(to right, #FFD200, #F7971E);  /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to right, #FFD200, #F7971E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
     color:black;
     z-index: 20;
     position: relative;
+    
   }
   
   .logo-container {
@@ -25,7 +30,9 @@
   .title {
     margin: 0;
     font-size: 45px;
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    /* font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
+    font-family: "Grechen Fuemen", serif;
+   
   }
   
   
@@ -35,9 +42,9 @@
     background-color:black;
     padding: 8px 15px;
     border-radius: 5px;
-    margin-left: 10px;
+    margin-left: 15px;
     transition: background-color 0.3s;
-    
+    width: 80px;
   }
   
   .nav-button:hover {

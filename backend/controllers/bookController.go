@@ -1,10 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
+	"strings"
 )
 
 func AddBook(c *gin.Context) {
@@ -96,42 +100,35 @@ func SearchBooks(c *gin.Context) {
 	status := c.Query("status")
 
 	var books []models.BookInventory
-	query := database.DB
+	query := database.DB.Session(&gorm.Session{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+
 	if title != "" {
-		query = query.Where("title LIKE ?", "%"+title+"%")
+		query = query.Where("LOWER(title) LIKE ?", "%"+strings.ToLower(title)+"%")
 	}
 	if author != "" {
-		query = query.Where("authors LIKE ?", "%"+author+"%")
+		query = query.Where("LOWER(authors) LIKE ?", "%"+strings.ToLower(author)+"%")
 	}
 	if publisher != "" {
-		query = query.Where("publisher LIKE ?", "%"+publisher+"%")
+		query = query.Where("LOWER(publisher) LIKE ?", "%"+strings.ToLower(publisher)+"%")
 	}
 	if status != "" {
 		if status == "available" {
 			query = query.Where("available_copies > ?", 0)
+
 		} else {
 			query = query.Where("available_copies = ?", 0)
+
 		}
 	}
+
 	if err := query.Find(&books).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// Debug log
+	fmt.Println("Books found:", books)
+
 	c.JSON(http.StatusOK, books)
 }
-
-// func SearchBooks(c *gin.Context) {
-// 	query := c.Query("q")
-// 	fmt.Println("Received query:", query) // Debug log
-// 	var books []models.BookInventory
-// 	dbQuery := database.DB
-// 	if query != "" {
-// 		dbQuery = dbQuery.Where("title LIKE ? OR authors LIKE ? OR publisher LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
-// 	}
-// 	if err := dbQuery.Find(&books).Error; err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	fmt.Println("Books found:", books) // Debug log
-// 	c.JSON(http.StatusOK, books)
-// }
