@@ -4,17 +4,16 @@ import LoginForm from '../../Components/Auth/LoginForm';
 const Login = ({ onLoginSuccess }) => {
   const [token, setToken] = useState('');
   const [role, setRole] = useState('');
-
-  const handleLoginSuccess = (token, role) => {
-
-     
+  const[id,setid]=useState('');
+  const handleLoginSuccess = (token, role, id) => {
     setToken(token);
     setRole(role);
-    // Save the token and role in local storage or update the application state
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', role);
-    // Redirect to a protected route or update the UI as needed
-
+    setid(id)
+    // Store user ID in localStorage
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("id", id); 
+  
     onLoginSuccess(token);
   };
 

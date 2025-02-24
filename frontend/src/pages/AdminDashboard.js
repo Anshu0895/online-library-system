@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import '../Css/AdminDashboard.css';
-
+import { toast } from 'react-toastify';
 const AdminDashboard = ({ token }) => {
   const [books, setBooks] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -58,9 +59,17 @@ const AdminDashboard = ({ token }) => {
         },
       });
       setSuccess('Book added successfully');
-      fetchBooks(); // Refresh books list
+      toast.success('Book added successflly', {
+              position: "top-center",
+              style: { backgroundColor: 'black', color: 'white' },
+            });
+      fetchBooks(); 
     } catch (err) {
       setError('Failed to add book');
+      toast.error('Failed to add book', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
     }
   };
 
@@ -72,9 +81,17 @@ const AdminDashboard = ({ token }) => {
         },
       });
       setSuccess('Book deleted successfully');
+      toast.success('Book deleted successflly', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
       fetchBooks(); // Refresh books list
     } catch (err) {
       setError('Failed to delete book');
+      toast.error('Failed to delete book', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
     }
   };
 
@@ -87,10 +104,18 @@ const AdminDashboard = ({ token }) => {
         },
       });
       setSuccess('Book updated successfully');
+      toast.success('Book updated successflly', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
       fetchBooks(); // Refresh books list
       setUpdateBookFormVisible(false);
     } catch (err) {
       setError('Failed to update book');
+      toast.error('Failed to update book', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
     }
   };
 
@@ -101,21 +126,48 @@ const AdminDashboard = ({ token }) => {
 
   const handleAcceptRequest = async (requestId) => {
     try {
-      const response = await api.put(`/requests/${requestId}/approve`, {}, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      const adminId = localStorage.getItem("id"); // Fetch admin ID from local storage
+
+      if (!adminId) {
+        setError("Admin ID not found in local storage");
+        return;
+      }
+
+      console.log("Sending ApproverId:", adminId);
+
+      const response = await api.put(
+        `/requests/${requestId}/approve`,
+        { approver_id: Number(adminId) },
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (response.status === 200) {
-        setRequests((prevRequests) => prevRequests.filter((request) => request.req_id !== requestId));
-        setSuccess('Request approved successfully');
+        setRequests((prevRequests) =>
+          prevRequests.filter((request) => request.req_id !== requestId)
+        );
+        setSuccess("Request approved successfully");
+        toast.success('Request approved successfully', {
+          position: "top-center",
+          style: { backgroundColor: 'black', color: 'white' },
+        });
+        
       } else {
-        setError('Failed to approve request');
+        setError("Failed to approve request");
       }
     } catch (err) {
-      setError('Failed to approve request');
+      setError("Failed to approve request");
+      toast.error('Failed to approve request', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
     }
   };
+
 
   const handleRejectRequest = async (requestId) => {
     try {
@@ -127,11 +179,19 @@ const AdminDashboard = ({ token }) => {
       if (response.status === 200) {
         setRequests((prevRequests) => prevRequests.filter((request) => request.req_id !== requestId));
         setSuccess('Request rejected successfully');
+        toast.success('Request rejected successfully', {
+          position: "top-center",
+          style: { backgroundColor: 'black', color: 'white' },
+        });
       } else {
         setError('Failed to reject request');
       }
     } catch (err) {
       setError('Failed to reject request');
+      toast.error('Failed to reject request', {
+        position: "top-center",
+        style: { backgroundColor: 'black', color: 'white' },
+      });
     }
   };
 
@@ -139,216 +199,236 @@ const AdminDashboard = ({ token }) => {
     fetchBooks();
     fetchRequests();
   }, [reload]);
+
   return (
     <div className='bap'>
-    <div className='admin-dashboard'>
-      <h2>Admin Dashboard</h2>
-      {error && <p className="error-message">{error}</p>}
-      {success && <p className="success-message">{success}</p>}
-
-      <button className='add-book' onClick={() => setAddBookFormVisible(!isAddBookFormVisible)}>
-        {isAddBookFormVisible ? 'Hide Add Book Form' : 'Show Add Book Form'}
-      </button>
-      {isAddBookFormVisible && (
-        <form onSubmit={handleAddBook}>
-          <div className="form-group">
-            <label htmlFor="isbn">ISBN:</label>
-            <input
-              type="text"
-              id="isbn"
-              value={newBook.isbn}
-              onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="lib_id">LIB_ID:</label>
-            <input
-              type="text"
-              id="lib_id"
-              value={newBook.lib_id}
-              onChange={(e) => setNewBook({ ...newBook, lib_id: parseInt(e.target.value, 10)  })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="title">Title:</label>
-            <input
-              type="text"
-              id="title"
-              value={newBook.title}
-              onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="authors">Authors:</label>
-            <input
-              type="text"
-              id="authors"
-              value={newBook.authors}
-              onChange={(e) => setNewBook({ ...newBook, authors: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="publisher">Publisher:</label>
-            <input
-              type="text"
-              id="publisher"
-              value={newBook.publisher}
-              onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
-              required
-            />
+      <div className='admin-dashboard'>
+        <h2>Admin Dashboard</h2>
+        <button className='add-book' onClick={() => setAddBookFormVisible(!isAddBookFormVisible)}>
+          {isAddBookFormVisible ? 'Hide Add Book Form' : 'Show Add Book Form'}
+        </button>
+        {isAddBookFormVisible && (
+          <div className='admin1-form'>
+          <form onSubmit={handleAddBook}>
+            <div className="form-group">
+              <label htmlFor="isbn">ISBN:</label>
+              <input
+                type="text"
+                id="isbn"
+                value={newBook.isbn}
+                onChange={(e) => setNewBook({ ...newBook, isbn: e.target.value })}
+                required
+              />
             </div>
-             <div className="form-group">
-            <label htmlFor="version">Version:</label>
-            <input
-              type="text"
-              id="version"
-              value={newBook.version}
-              onChange={(e) => setNewBook({ ...newBook, version: e.target.value })}
-              required
-            />
+            <div className="form-group">
+              <label htmlFor="lib_id">LIB_ID:</label>
+              <input
+                type="text"
+                id="lib_id"
+                value={newBook.lib_id}
+                onChange={(e) => setNewBook({ ...newBook, lib_id: parseInt(e.target.value, 10) })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="title">Title:</label>
+              <input
+                type="text"
+                id="title"
+                value={newBook.title}
+                onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="authors">Authors:</label>
+              <input
+                type="text"
+                id="authors"
+                value={newBook.authors}
+                onChange={(e) => setNewBook({ ...newBook, authors: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="publisher">Publisher:</label>
+              <input
+                type="text"
+                id="publisher"
+                value={newBook.publisher}
+                onChange={(e) => setNewBook({ ...newBook, publisher: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="version">Version:</label>
+              <input
+                type="text"
+                id="version"
+                value={newBook.version}
+                onChange={(e) => setNewBook({ ...newBook, version: e.target.value })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="total_copies">Total Copies:</label>
+              <input
+                type="number"
+                id="total_copies"
+                value={newBook.total_copies}
+                onChange={(e) => setNewBook({ ...newBook, total_copies: parseInt(e.target.value, 10) })}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="available_copies">Available Copies:</label>
+              <input
+                type="number"
+                id="available_copies"
+                value={newBook.available_copies}
+                onChange={(e) => setNewBook({ ...newBook, available_copies: parseInt(e.target.value, 10) })}
+                required
+              />
+            </div>
+            <button type="submit">Add Book</button>
+          </form>
           </div>
-          <div className="form-group">
-            <label htmlFor=" total_copies">Total Copies:</label>
-            <input
-              type="number"
-              id="total_copies"
-              value={newBook.total_copies}
-              onChange={(e) => setNewBook({ ...newBook,  total_copies: parseInt(e.target.value, 10) })}
-              required
-            />
+        )}
+        <button className='request-button' onClick={() => setRequestsVisible(!isRequestsVisible)}>
+          {isRequestsVisible ? 'Hide Issue Requests' : 'Show Issue Requests'}
+        </button>
+        {isRequestsVisible && (
+          <div className='requests-table'>
+            <h3>Issue Requests</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Book ID</th>
+                  <th>Reader ID</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((request) => (
+                  <tr key={request.req_id}>
+                    <td>{request.req_id}</td>
+                    <td>{request.book_id}</td>
+                    <td>{request.reader_id}</td>
+                    <td>{request.request_type}</td>
+                    <td><button className="accept-button" onClick={() => handleAcceptRequest(request.req_id)}>Accept</button></td>
+                    <td><button className="reject-button" onClick={() => handleRejectRequest(request.req_id)}>Reject</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="form-group">
-            <label htmlFor="available_copies">Available Copies:</label>
-            <input
-              type="number"
-              id="available_copies"
-              value={newBook.available_copies}
-              onChange={(e) => setNewBook({ ...newBook, available_copies: parseInt(e.target.value, 10) })}
-              required
-            />
-          </div>
-          <button type="submit">Add Book</button>
-        </form>
-      )}
-<div>----</div>
-      <button className='request-button' onClick={() => setRequestsVisible(!isRequestsVisible)}>
-        {isRequestsVisible ? 'Hide Issue Requests' : 'Show Issue Requests'}
-      </button>
-      {isRequestsVisible && (
-        <div>
-          <h3>Issue Requests</h3>
-          <ul className="request-list">
-            {requests.map((request) => (
-              <li key={request.req_id} className="request-item">
-                <span>Request ID: {request.req_id}</span>
-                <span>Book ID: {request.book_id}</span>
-                <span>Reader ID: {request.reader_id}</span>
-                <button className="accept-button" onClick={() => handleAcceptRequest(request.req_id)}>Accept</button>
-                <button className="reject-button" onClick={() => handleRejectRequest(request.req_id)}>Reject</button>
-              </li>
-            ))}
-          </ul>
+        )}
+        <div className='all-books'>
+          <h3>All Books</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>ISBN</th>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Publisher</th>
+                <th>Total Copies</th>
+                <th>Available Copies</th>
+                <th>Actions</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {books.map((book) => (
+                <tr key={book.isbn}>
+                  <td>{book.isbn}</td>
+                  <td>{book.title}</td>
+                  <td>{book.authors}</td>
+                  <td>{book.publisher}</td>
+                  <td>{book.total_copies}</td>
+                  <td>{book.available_copies}</td>
+                  <td><button className='accept' onClick={() => handleEditClick(book)}>Update</button></td>
+                  <td><button className='delete' onClick={() => handleDeleteBook(book.isbn)}>Delete</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      )}
-<div className='all-books'>
-  <h3>All Books</h3>
-  <div className="book-list-header">
-    <span>ISBN</span>
-    <span>Title</span>
-    <span>Authors</span>
-    <span>Publisher</span>
-    <span>Total Copies</span>
-    <span>Available Copies</span>
-    <span>Actions</span>
-    <span>Actions</span>
-  </div>
-  <ul className="book-list">
-    {books.map((book) => (
-      <li key={book.isbn} className="book-item">
-         <span>{book.isbn}</span>
-        <span>{book.title}</span>
-        <span>{book.authors}</span>
-        <span>{book.publisher}</span>
-        <span>{book.total_copies}</span>
-        <span>{book.available_copies}</span>
-        <button className='accept' onClick={() => handleEditClick(book)}>Update</button>
-        <button className='delete' onClick={() => handleDeleteBook(book.isbn)}>Delete</button>
-      </li>
-    ))}
-  </ul>
-</div>
 
-{isUpdateBookFormVisible && (
-  <form onSubmit={handleUpdateBook}>
-    <div className="form-group">
-      <label htmlFor="isbn">ISBN:</label>
-      <input
-        type="text"
-        id="isbn"
-        value={currentBook.isbn}
-        onChange={(e) => setCurrentBook({ ...currentBook, isbn: e.target.value })}
-        disabled
-      />
-    </div>
-    <div className="form-group">
-      <label htmlFor="title">Title:</label>
-      <input
-        type="text"
-        id="title"
-        value={currentBook.title}
-        onChange={(e) => setCurrentBook({ ...currentBook, title: e.target.value })}
-        required
-      />
-    </div>
-    <div className="form-group">
-      <label htmlFor="authors">Authors:</label>
-      <input
-        type="text"
-        id="authors"
-        value={currentBook.authors}
-        onChange={(e) => setCurrentBook({ ...currentBook, authors: e.target.value })}
-        required
-      />
-    </div>
-    <div className="form-group">
-      <label htmlFor="publisher">Publisher:</label>
-      <input
-        type="text"
-        id="publisher"
-        value={currentBook.publisher}
-        onChange={(e) => setCurrentBook({ ...currentBook, publisher: e.target.value })}
-        required
-      />
-    </div>
-    <div className="form-group">
-      <label htmlFor="total_copies">Total Copies:</label>
-      <input
-        type="number"
-        id="total_copies"
-        value={currentBook.total_copies}
-        onChange={(e) => setCurrentBook({ ...currentBook, total_copies: parseInt(e.target.value, 10) })}
-        required
-      />
+        {isUpdateBookFormVisible && (
+
+          <div className='update-form'>
+          <form onSubmit={handleUpdateBook}>
+            <div className='book-form'>
+              <div className="form-group">
+                <label htmlFor="isbn">ISBN:</label>
+                <input
+                  type="text"
+                  id="isbn"
+                  value={currentBook.isbn}
+                  onChange={(e) => setCurrentBook({ ...currentBook, isbn: e.target.value })}
+                  disabled
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="title">Title:</label>
+                <input
+                  type="text"
+                  id="title"
+                  value={currentBook.title}
+                  onChange={(e) => setCurrentBook({ ...currentBook, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="authors">Authors:</label>
+                <input
+                  type="text"
+                  id="authors"
+                  value={currentBook.authors}
+                  onChange={(e) => setCurrentBook({ ...currentBook, authors: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="publisher">Publisher:</label>
+                <input
+                  type="text"
+                  id="publisher"
+                  value={currentBook.publisher}
+                  onChange={(e) => setCurrentBook({ ...currentBook, publisher: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="total_copies">Total Copies:</label>
+                <input
+                  type="number"
+                  id="total_copies"
+                  value={currentBook.total_copies}
+                  onChange={(e) => setCurrentBook({ ...currentBook, total_copies: parseInt(e.target.value, 10) })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="available_copies">Available Copies:</label>
+                <input
+                  type="number"
+                  id="available_copies"
+                  value={currentBook.available_copies}
+                  onChange={(e) => setCurrentBook({ ...currentBook, available_copies: parseInt(e.target.value, 10) })}
+                  required
+                />
+              </div>
+              <button type="submit">Update Book</button>
+            </div>
+          </form>
+          </div>
+        )}
       </div>
-      <div className="form-group">
-      <label htmlFor="available_copies:">Available Copies:</label>
-      <input
-        type="number"
-        id="available_copies:"
-        value={currentBook.available_copies}
-        onChange={(e) => setCurrentBook({ ...currentBook, available_copies: parseInt(e.target.value, 10) })}
-        required
-      />
-    </div>
-    <button type="submit">Update Book</button>
-  </form>
-)}
-
-    </div>
     </div>
   );
 };

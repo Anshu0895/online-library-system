@@ -50,6 +50,8 @@ const App = () => {
   const handleLogout = () => {
     setToken(null);
     localStorage.removeItem("token");
+    localStorage.removeItem('userId')
+    localStorage.removeItem('role')
     setUser(null);
     navigate("/");
   };

@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import SignupForm from '../../Components/Auth/SignupForm';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import SignupForm from "../../Components/Auth/SignupForm";
 
 const Signup = () => {
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState("");
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleSignupSuccess = (token) => {
     setToken(token);
-    // Save the token in local storage or update the application state
-    localStorage.setItem('token', token);
-    // Redirect to a protected route or update the UI as needed
+    localStorage.setItem("token", token);
+    navigate("/login"); // Redirect to login after successful signup
   };
 
   return (

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import '../../Css/LoginForm.css';
-import { Link } from "react-router-dom";
+import { Link ,useNavigate} from "react-router-dom";
 import api from '../../utils/api';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+
 
 const LoginForm = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
@@ -22,18 +22,18 @@ const LoginForm = ({ onLoginSuccess }) => {
     try {
       const response = await api.post('/login', { email, password });
       console.log("Response data:", response.data); 
-      const { token, role } = response.data;
+      const { token, role,id } = response.data;
       
 
       
 
       // Call the onLoginSuccess callback with the token and role
-      onLoginSuccess(token, role);
+      onLoginSuccess(token, role,id);
       
       // Save token and role in local storage
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
-
+      localStorage.setItem('id', id);
       toast.success('Login successful!', {
         position: "top-center",
         style: { backgroundColor: 'black', color: 'white' },
@@ -44,7 +44,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         case 'Owner':
           navigate('/libraries');
           break;
-        case 'Admin':
+        case 'LibraryAdmin':
           navigate('/admin');
           break;
         case 'Reader':
@@ -70,7 +70,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       <div className="login-form-container">
         <h2>Login</h2>
         {error && <p className="error-message">{error}</p>}
-        <form onSubmit={handleSubmit}>
+        <form className='loin-form' onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email:</label>
             <input

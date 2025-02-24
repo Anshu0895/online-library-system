@@ -1,71 +1,71 @@
 .login-form-container {
-    max-width: 400px;
-    margin:  auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color:black;
-   width: 50%;
+  max-width: 400px;
+  margin:  auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color:black;
+ width: 50%;
 color: white;
 box-shadow: 5px 5px 2px black;
 
-  }
-  .login-box{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  height: 92.5vh;
-  /* background-color:#fcc52d ; */
-  background: #F7971E;  /* fallback for old browsers */
-background: -webkit-linear-gradient(to right, #FFD200, #F7971E);  /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to right, #FFD200, #F7971E); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+.login-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+height: 92.5vh;
+background-color:#fcc52d ;
 
-  
-  }
-  
-  .login-form-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: white;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: white;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .error-message {
-    color: red;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  button {
-    /* width: 50%; */
-    padding: 10px;
-    background-color: #fcc52d ;
-    color: black;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-weight: bold;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
+}
+.login-form{
+  background-color: black !important;
+  color: white !important;
+}
+.login-form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: white !important;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #fcc52d ;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
   

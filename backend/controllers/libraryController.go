@@ -47,3 +47,19 @@ func CreateLibrary(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, library)
 }
+func DeleteLibrary(c *gin.Context) {
+	// Get library ID from the URL parameter and convert it to uint
+	var library models.Library
+	id := c.Param("id")
+
+	if err := database.DB.First(&library, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "library not found"})
+		return
+	}
+	if err := database.DB.Delete(&library).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "library deleted successfuly"})
+
+}

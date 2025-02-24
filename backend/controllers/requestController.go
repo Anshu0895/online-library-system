@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
@@ -15,28 +16,32 @@ func RaiseIssueRequest(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	fmt.Println("Received book_id:", request.BookID) // Debug log
-	// Check availability of the book
+
+	// Debugging: Print received reader ID
+	fmt.Println("Received reader_id:", request.ReaderID)
+
+	// Check if book exists
 	var book models.BookInventory
 	if err := database.DB.First(&book, "isbn = ?", request.BookID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Book not found"})
 		return
 	}
 
+	// Check if book is available
 	if book.AvailableCopies <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Book not available"})
 		return
 	}
 
-	// Create Issue Request
+	// Store request with correct reader ID
 	request.RequestDate = time.Now()
 	request.RequestType = "pending"
 	if err := database.DB.Create(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"message": "Issue request raised", "request": request})
 
+	c.JSON(http.StatusCreated, gin.H{"message": "Issue request raised", "request": request})
 }
 
 func GetRequestEvents(c *gin.Context) {
@@ -54,17 +59,19 @@ func GetRequestEventsByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, request)
 }
-//Get Pending Requests
+
+// Get Pending Requests
 func GetPendingRequests(c *gin.Context) {
-    var requests []models.RequestEvent
+	var requests []models.RequestEvent
 
-    if err := database.DB.Where("request_type = ?", "pending").Find(&requests).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := database.DB.Where("request_type = ?", "pending").Find(&requests).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"requests": requests})
+	c.JSON(http.StatusOK, gin.H{"requests": requests})
 }
+
 func ApproveIssueRequest(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent
@@ -86,10 +93,21 @@ func ApproveIssueRequest(c *gin.Context) {
 		return
 	}
 
-	// Approve Request
+	// Approve Request - Expect JSON Body
+	var reqBody struct {
+		ApproverID uint `json:"approver_id"`
+	}
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	log.Printf("Received ApproverId: %d", reqBody.ApproverID)
+
 	request.ApprovalDate = time.Now()
-	request.ApproverID = 3
+	request.ApproverID = reqBody.ApproverID
 	request.RequestType = "approved"
+
 	if err := database.DB.Save(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -117,6 +135,7 @@ func ApproveIssueRequest(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Issue request approved", "issue": issue})
 }
+
 func RejectIssueRequest(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent
@@ -130,6 +149,7 @@ func RejectIssueRequest(c *gin.Context) {
 	// Reject Request
 	request.ApprovalDate = time.Now()
 	request.ApproverID = 3
+
 	request.RequestType = "rejected"
 	if err := database.DB.Save(&request).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

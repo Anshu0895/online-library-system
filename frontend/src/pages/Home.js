@@ -1,7 +1,6 @@
 import React from "react";
 import "../Css/HomePage.css"; 
-import right2 from "../assests/right2.png"; 
-import rightback from "../assests/rightback.png";
+import right2 from "../assests/home.png"; 
 import instagramIcon from "../assests/instagram.png"
 import LinkdeinIcon from "../assests/linkedin.png"
 import YoutubeIcon from "../assests/youtube.png"
@@ -39,7 +38,6 @@ const HomePage = () => {
       
       <div className="right-side">
         <img src={right2} alt="Stack of Books 1" className="book-stack" />
-        <img src={rightback} alt="Stack of Books 2" className="book-stack" />
       </div>
       
     </div>

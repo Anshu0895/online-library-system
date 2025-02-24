@@ -9,9 +9,9 @@ import (
 
 func RequestRoutes(router *gin.Engine) {
 	router.POST("/raise-request", middleware.RoleBasedAccessControl("Reader"), controllers.RaiseIssueRequest)
-	router.GET("/requests", middleware.RoleBasedAccessControl("Admin"), controllers.GetRequestEvents)
-	router.GET("/pending-requests", middleware.RoleBasedAccessControl("Admin"), controllers.GetPendingRequests)
-	router.GET("/requests/:id", middleware.RoleBasedAccessControl("Admin"), controllers.GetRequestEventsByID)
-	router.PUT("/requests/:id/approve", middleware.RoleBasedAccessControl("Admin"), controllers.ApproveIssueRequest)
-	router.PUT("/requests/:id/reject", middleware.RoleBasedAccessControl("Admin"), controllers.RejectIssueRequest)
+	router.GET("/requests", middleware.RoleBasedAccessControl("LibraryAdmin"), controllers.GetRequestEvents)
+	router.GET("/pending-requests", middleware.RoleBasedAccessControl("LibraryAdmin"), controllers.GetPendingRequests)
+	router.GET("/requests/:id", middleware.RoleBasedAccessControl("LibraryAdmin"), controllers.GetRequestEventsByID)
+	router.PUT("/requests/:id/approve", middleware.RoleBasedAccessControl("LibraryAdmin"), controllers.ApproveIssueRequest)
+	router.PUT("/requests/:id/reject", middleware.RoleBasedAccessControl("LibraryAdmin"), controllers.RejectIssueRequest)
 }
