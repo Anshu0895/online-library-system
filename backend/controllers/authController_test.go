@@ -3,15 +3,16 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"online-library-system/database"
 	"online-library-system/models"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func SetupTestDB() *gorm.DB {
@@ -19,7 +20,7 @@ func SetupTestDB() *gorm.DB {
 	if err != nil {
 		panic("failed to connect to the database")
 	}
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Library{}, &models.User{}, &models.BookInventory{}, &models.RequestEvent{}, &models.IssueRegistry{})
 	database.DB = db
 	return db
 }

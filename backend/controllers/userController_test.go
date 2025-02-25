@@ -3,32 +3,20 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
-	"online-library-system/database"
 	"online-library-system/models"
 	"testing"
-)
 
-func SetupUserTestDB() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect to the database")
-	}
-	db.AutoMigrate(&models.User{})
-	database.DB = db
-	return db
-}
+	"github.com/gin-gonic/gin"
+)
 
 func TestCreateAdmin(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	router.POST("/create_admin", CreateAdmin)
 
-	SetupUserTestDB()
+	SetupTestDB()
 
 	user := models.User{
 		Name:          "Admin User",
@@ -61,7 +49,7 @@ func TestGetUser(t *testing.T) {
 	router := gin.Default()
 	router.GET("/users/:id", GetUser)
 
-	db := SetupUserTestDB()
+	db := SetupTestDB()
 
 	user := models.User{
 		Name:          "Test User",
@@ -93,7 +81,7 @@ func TestGetUsers(t *testing.T) {
 	router := gin.Default()
 	router.GET("/users", GetUsers)
 
-	db := SetupUserTestDB()
+	db := SetupTestDB()
 
 	users := []models.User{
 		{
@@ -133,7 +121,7 @@ func TestGetAdmins(t *testing.T) {
 	router := gin.Default()
 	router.GET("/admins", GetAdmins)
 
-	db := SetupUserTestDB()
+	db := SetupTestDB()
 
 	admins := []models.User{
 		{
@@ -175,7 +163,7 @@ func TestUpdateUser(t *testing.T) {
 	router := gin.Default()
 	router.PUT("/users/:id", UpdateUser)
 
-	db := SetupUserTestDB()
+	db := SetupTestDB()
 
 	user := models.User{
 		Name:          "Test User",
@@ -216,7 +204,7 @@ func TestDeleteUser(t *testing.T) {
 	router := gin.Default()
 	router.DELETE("/users/:id", DeleteUser)
 
-	db := SetupUserTestDB()
+	db := SetupTestDB()
 
 	user := models.User{
 		Name:          "Test User",

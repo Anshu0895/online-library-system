@@ -1,0 +1,74 @@
+=== RUN   TestSignup
+Received user data: {ID:0 Name:John Doe Email:johndoe@example.com Password:password123 ContactNumber:1234567890 Role:Admin LibID:0}
+Contact Number Validation: 1234567890
+
+2025/02/25 09:29:52 [31;1m/home/xs-514ansana/online-library-system/backend/controllers/authController.go:284 [35;1mrecord not found
+[0m[33m[0.062ms] [34;1m[rows:0][0m SELECT * FROM `users` WHERE email = "johndoe@example.com" ORDER BY `users`.`id` LIMIT 1
+User created successfully
+[GIN] 2025/02/25 - 09:29:52 | 201 |   54.621916ms |                 | POST     "/signup"
+--- PASS: TestSignup (0.06s)
+=== RUN   TestLogin
+Received credentials: {Email:johndoe@example.com Password:password123}
+Retrieved user: &{ID:1 Name:John Doe Email:johndoe@example.com Password:$2a$10$pGmw7QVSD7sR7RAombaEtOWMIIi2RhgsJCoK7TmXVGV0.T6t58uke ContactNumber:1234567890 Role: LibID:0}
+Generated token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiIiwiZXhwIjoxNzQwNTQyMzkyfQ.oWZKObCOwDsWtnEHap3S8IBJZzAhg8zmMQuTP_eOuRE
+[GIN] 2025/02/25 - 09:29:52 | 200 |   53.011732ms |                 | POST     "/login"
+--- PASS: TestLogin (0.11s)
+=== RUN   TestAddBook
+
+2025/02/25 09:29:52 [31;1m/home/xs-514ansana/online-library-system/backend/controllers/bookController.go:21 [35;1mrecord not found
+[0m[33m[0.030ms] [34;1m[rows:0][0m SELECT * FROM `book_inventories` WHERE isbn = "1234567890" ORDER BY `book_inventories`.`isbn` LIMIT 1
+[GIN] 2025/02/25 - 09:29:52 | 201 |      137.52µs |                 | POST     "/books"
+--- PASS: TestAddBook (0.00s)
+=== RUN   TestGetBooks
+[GIN] 2025/02/25 - 09:29:52 | 200 |      42.619µs |                 | GET      "/books"
+--- PASS: TestGetBooks (0.00s)
+=== RUN   TestGetBook
+[GIN] 2025/02/25 - 09:29:52 | 200 |       36.04µs |                 | GET      "/books/3333333333"
+--- PASS: TestGetBook (0.00s)
+=== RUN   TestRemoveBook
+[GIN] 2025/02/25 - 09:29:52 | 200 |     102.854µs |                 | DELETE   "/books/4444444444"
+--- PASS: TestRemoveBook (0.00s)
+=== RUN   TestGetLibraries
+[GIN] 2025/02/25 - 09:29:52 | 200 |      37.954µs |                 | GET      "/libraries"
+--- PASS: TestGetLibraries (0.00s)
+=== RUN   TestCreateLibrary
+
+2025/02/25 09:29:52 [31;1m/home/xs-514ansana/online-library-system/backend/controllers/libraryController.go:27 [35;1mrecord not found
+[0m[33m[0.022ms] [34;1m[rows:0][0m SELECT * FROM `libraries` WHERE name = "New Library" ORDER BY `libraries`.`id` LIMIT 1
+--- PASS: TestCreateLibrary (0.00s)
+=== RUN   TestCreateDuplicateLibrary
+[GIN] 2025/02/25 - 09:29:52 | 409 |      41.767µs |                 | POST     "/libraries"
+--- PASS: TestCreateDuplicateLibrary (0.00s)
+=== RUN   TestDeleteLibrary
+[GIN] 2025/02/25 - 09:29:52 | 200 |      68.764µs |                 | DELETE   "/libraries/1"
+--- PASS: TestDeleteLibrary (0.00s)
+=== RUN   TestDeleteNonExistentLibrary
+
+2025/02/25 09:29:52 [31;1m/home/xs-514ansana/online-library-system/backend/controllers/libraryController.go:55 [35;1mrecord not found
+[0m[33m[0.021ms] [34;1m[rows:0][0m SELECT * FROM `libraries` WHERE id = "999" ORDER BY `libraries`.`id` LIMIT 1
+[GIN] 2025/02/25 - 09:29:52 | 404 |      50.404µs |                 | DELETE   "/libraries/999"
+--- PASS: TestDeleteNonExistentLibrary (0.00s)
+=== RUN   TestCreateIssueRequest
+Received reader_id: 1
+[GIN] 2025/02/25 - 09:29:52 | 201 |     186.706µs |                 | POST     "/requests"
+--- PASS: TestCreateIssueRequest (0.00s)
+=== RUN   TestCreateAdmin
+[GIN] 2025/02/25 - 09:29:52 | 201 |   53.350956ms |                 | POST     "/create_admin"
+--- PASS: TestCreateAdmin (0.05s)
+=== RUN   TestGetUser
+[GIN] 2025/02/25 - 09:29:52 | 200 |      40.455µs |                 | GET      "/users/1"
+--- PASS: TestGetUser (0.00s)
+=== RUN   TestGetUsers
+[GIN] 2025/02/25 - 09:29:52 | 200 |      54.005µs |                 | GET      "/users"
+--- PASS: TestGetUsers (0.00s)
+=== RUN   TestGetAdmins
+[GIN] 2025/02/25 - 09:29:52 | 200 |      42.874µs |                 | GET      "/admins"
+--- PASS: TestGetAdmins (0.00s)
+=== RUN   TestUpdateUser
+[GIN] 2025/02/25 - 09:29:52 | 200 |     116.397µs |                 | PUT      "/users/1"
+--- PASS: TestUpdateUser (0.00s)
+=== RUN   TestDeleteUser
+[GIN] 2025/02/25 - 09:29:52 | 200 |      80.542µs |                 | DELETE   "/users/1"
+--- PASS: TestDeleteUser (0.00s)
+PASS
+ok  	online-library-system/controllers	0.244s
