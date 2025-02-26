@@ -3,8 +3,8 @@ package controllers
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	// "gorm.io/gorm"
+	// "gorm.io/gorm/logger"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
@@ -81,7 +81,7 @@ func RemoveBook(c *gin.Context) {
 
 	// Check if there are available copies to decrement
 	if book.AvailableCopies > 0 {
-		book.AvailableCopies-- // Decrement only the available copies
+		book.AvailableCopies--
 		book.TotalCopies--
 		if err := database.DB.Save(&book).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -100,10 +100,10 @@ func SearchBooks(c *gin.Context) {
 	status := c.Query("status")
 
 	var books []models.BookInventory
-	query := database.DB.Session(&gorm.Session{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-
+	// query := database.DB.Session(&gorm.Session{
+	// 	Logger: logger.Default.LogMode(logger.Info),
+	// })
+	query := database.DB
 	if title != "" {
 		query = query.Where("LOWER(title) LIKE ?", "%"+strings.ToLower(title)+"%")
 	}

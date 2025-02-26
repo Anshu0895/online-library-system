@@ -150,6 +150,7 @@ const AdminDashboard = ({ token }) => {
         setRequests((prevRequests) =>
           prevRequests.filter((request) => request.req_id !== requestId)
         );
+        fetchBooks();
         setSuccess("Request approved successfully");
         toast.success('Request approved successfully', {
           position: "top-center",

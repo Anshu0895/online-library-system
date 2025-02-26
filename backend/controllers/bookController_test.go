@@ -148,3 +148,58 @@ func TestRemoveBook(t *testing.T) {
 		t.Errorf("handler returned unexpected message: got %v want %v", response["message"], "Available copy removed")
 	}
 }
+func TestUpdateBook(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := gin.Default()
+	router.PUT("/books/:isbn", UpdateBook)
+
+	db := SetupTestDB()
+
+	book := models.BookInventory{
+		Title:           "Original Title",
+		ISBN:            "5555555555",
+		Authors:         "Original Author",
+		Publisher:       "Original Publisher",
+		TotalCopies:     3,
+		AvailableCopies: 3,
+	}
+	db.Create(&book)
+
+	updatedBook := models.BookInventory{
+		Title:           "Updated Title",
+		Authors:         "Updated Author",
+		Publisher:       "Updated Publisher",
+		TotalCopies:     5,
+		AvailableCopies: 5,
+	}
+
+	body, _ := json.Marshal(updatedBook)
+	req, _ := http.NewRequest("PUT", "/books/5555555555", bytes.NewBuffer(body))
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var response models.BookInventory
+	json.Unmarshal(rr.Body.Bytes(), &response)
+
+	if response.Title != updatedBook.Title {
+		t.Errorf("handler returned unexpected title: got %v want %v", response.Title, updatedBook.Title)
+	}
+	if response.Authors != updatedBook.Authors {
+		t.Errorf("handler returned unexpected authors: got %v want %v", response.Authors, updatedBook.Authors)
+	}
+	if response.Publisher != updatedBook.Publisher {
+		t.Errorf("handler returned unexpected publisher: got %v want %v", response.Publisher, updatedBook.Publisher)
+	}
+	if response.TotalCopies != updatedBook.TotalCopies {
+		t.Errorf("handler returned unexpected total copies: got %v want %v", response.TotalCopies, updatedBook.TotalCopies)
+	}
+	if response.AvailableCopies != updatedBook.AvailableCopies {
+		t.Errorf("handler returned unexpected available copies: got %v want %v", response.AvailableCopies, updatedBook.AvailableCopies)
+	}
+}

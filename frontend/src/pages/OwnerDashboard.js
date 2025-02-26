@@ -19,9 +19,10 @@ const OwnerDashboard = ({ token }) => {
   const [newLibrary, setNewLibrary] = useState({ name: "" });
 
   useEffect(() => {
-    fetchLibraries();
-    fetchAdmins();
-  }, [token]);
+    if (token) {
+      fetchLibraries();
+      fetchAdmins();
+    } }, [token]);
 
   const fetchLibraries = async () => {
     try {

@@ -1,3 +1,4 @@
+
 package controllers
 
 import (
@@ -32,30 +33,98 @@ func TestSignup(t *testing.T) {
 
 	SetupTestDB()
 
-	user := models.User{
-		Name:          "John Doe",
-		Email:         "johndoe@example.com",
-		Password:      "password123",
-		ContactNumber: "1234567890",
-		Role:          "Admin",
+	tests := []struct {
+		name     string
+		user     models.User
+		wantCode int
+		wantBody string
+	}{
+		{
+			name: "Valid user",
+			user: models.User{
+				Name:          "John Doe",
+				Email:         "johndoe@example.com",
+				Password:      "password123",
+				ContactNumber: "1234567890",
+				Role:          "Admin",
+			},
+			wantCode: http.StatusCreated,
+		},
+		{
+			name: "Invalid email",
+			user: models.User{
+				Name:          "John Doe",
+				Email:         "invalid-email",
+				Password:      "password123",
+				ContactNumber: "1234567890",
+				Role:          "Admin",
+			},
+			wantCode: http.StatusBadRequest,
+			wantBody: "Invalid email address",
+		},
+		{
+			name: "Short password",
+			user: models.User{
+				Name:          "John Doe",
+				Email:         "johndoe@example.com",
+				Password:      "short",
+				ContactNumber: "1234567890",
+				Role:          "Admin",
+			},
+			wantCode: http.StatusBadRequest,
+			wantBody: "Password must be at least 8 characters",
+		},
+		{
+			name: "Invalid contact number",
+			user: models.User{
+				Name:          "John Doe",
+				Email:         "johndoe@example.com",
+				Password:      "password123",
+				ContactNumber: "invalid-number",
+				Role:          "Admin",
+			},
+			wantCode: http.StatusBadRequest,
+			wantBody: "Contact number must be 10 digits",
+		},
+		{
+			name: "User already exists",
+			user: models.User{
+				Name:          "John Doe",
+				Email:         "johndoe@example.com",
+				Password:      "password123",
+				ContactNumber: "1234567890",
+				Role:          "Admin",
+			},
+			wantCode: http.StatusBadRequest,
+			wantBody: "User with this email already exists",
+		},
 	}
 
-	body, _ := json.Marshal(user)
-	req, _ := http.NewRequest("POST", "/signup", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create the user if the test case is "User already exists"
+			if tt.name == "User already exists" {
+				existingUser := tt.user
+				hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(existingUser.Password), bcrypt.DefaultCost)
+				existingUser.Password = string(hashedPassword)
+				database.DB.Create(&existingUser)
+			}
 
-	rr := httptest.NewRecorder()
-	router.ServeHTTP(rr, req)
+			body, _ := json.Marshal(tt.user)
+			req, _ := http.NewRequest("POST", "/signup", bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
 
-	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
-	}
+			rr := httptest.NewRecorder()
+			router.ServeHTTP(rr, req)
 
-	var response models.User
-	json.Unmarshal(rr.Body.Bytes(), &response)
+			if status := rr.Code; status != tt.wantCode {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.wantCode)
+			}
 
-	if response.Email != user.Email {
-		t.Errorf("handler returned unexpected email: got %v want %v", response.Email, user.Email)
+			if tt.wantBody != "" && !jsonContains(rr.Body.Bytes(), tt.wantBody) {
+				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.wantBody)
+			}
+		})
 	}
 }
 
@@ -73,29 +142,72 @@ func TestLogin(t *testing.T) {
 		Email:         "johndoe@example.com",
 		Password:      string(hashedPassword),
 		ContactNumber: "1234567890",
+		Role:          "Admin",
 	}
 	database.DB.Create(&testUser)
 
-	credentials := map[string]string{
-		"email":    "johndoe@example.com",
-		"password": "password123",
+	tests := []struct {
+		name     string
+		creds    map[string]string
+		wantCode int
+		wantBody string
+	}{
+		{
+			name: "Valid login",
+			creds: map[string]string{
+				"email":    "johndoe@example.com",
+				"password": "password123",
+			},
+			wantCode: http.StatusOK,
+		},
+		{
+			name: "Invalid email",
+			creds: map[string]string{
+				"email":    "invalid@example.com",
+				"password": "password123",
+			},
+			wantCode: http.StatusUnauthorized,
+			wantBody: "Invalid email or password",
+		},
+		{
+			name: "Incorrect password",
+			creds: map[string]string{
+				"email":    "johndoe@example.com",
+				"password": "wrongpassword",
+			},
+			wantCode: http.StatusUnauthorized,
+			wantBody: "Invalid email or password",
+		},
 	}
 
-	body, _ := json.Marshal(credentials)
-	req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, _ := json.Marshal(tt.creds)
+			req, _ := http.NewRequest("POST", "/login", bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application/json")
 
-	rr := httptest.NewRecorder()
-	router.ServeHTTP(rr, req)
+			rr := httptest.NewRecorder()
+			router.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+			if status := rr.Code; status != tt.wantCode {
+				t.Errorf("handler returned wrong status code: got %v want %v", status, tt.wantCode)
+			}
+
+			if tt.wantBody != "" && !jsonContains(rr.Body.Bytes(), tt.wantBody) {
+				t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), tt.wantBody)
+			}
+		})
 	}
+}
 
-	var response map[string]interface{}
-	json.Unmarshal(rr.Body.Bytes(), &response)
-
-	if response["token"] == "" {
-		t.Errorf("handler did not return a token")
+// Helper function to check if JSON response contains a substring
+func jsonContains(body []byte, substring string) bool {
+	var result map[string]interface{}
+	json.Unmarshal(body, &result)
+	for _, v := range result {
+		if str, ok := v.(string); ok && str == substring {
+			return true
+		}
 	}
+	return false
 }

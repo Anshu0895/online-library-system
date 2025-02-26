@@ -123,3 +123,33 @@ func TestDeleteNonExistentLibrary(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, w.Code)
 	assert.Contains(t, w.Body.String(), "library not found")
 }
+func TestCreateLibraryNonOwner(t *testing.T) {
+	SetupTestDB() // Ensure test DB is initialized
+
+	// Create a non-owner user
+	nonOwner := models.User{ID: 2, Role: "Member"}
+	database.DB.Create(&nonOwner)
+
+	// Create a library request
+	libraryData := map[string]string{"name": "Unauthorized Library"}
+	jsonValue, _ := json.Marshal(libraryData)
+
+	// Create a new request
+	req, _ := http.NewRequest("POST", "/libraries", bytes.NewBuffer(jsonValue))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Create a test Gin context
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	// Simulate user authentication
+	c.Request = req
+	c.Set("user_id", uint(2)) // Ensure user_id is set to non-owner
+
+	// Call the handler manually with the updated context
+	CreateLibrary(c)
+
+	// Assertions
+	assert.Equal(t, http.StatusForbidden, w.Code)
+	assert.Contains(t, w.Body.String(), "Only users with the role of 'Owner' can create a library")
+}
