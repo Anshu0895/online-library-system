@@ -1,0 +1,664 @@
+definitions:
+  models.BookInventory:
+    properties:
+      authors:
+        type: string
+      available_copies:
+        type: integer
+      isbn:
+        type: string
+      lib_id:
+        type: integer
+      publisher:
+        type: string
+      title:
+        type: string
+      total_copies:
+        type: integer
+      version:
+        type: string
+    type: object
+  models.Credentials:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.Library:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.RequestEvent:
+    properties:
+      approval_date:
+        type: string
+      approver_id:
+        type: integer
+      book_id:
+        type: string
+      reader_id:
+        type: integer
+      req_id:
+        type: integer
+      request_date:
+        type: string
+      request_type:
+        type: string
+    type: object
+  models.User:
+    properties:
+      contact_number:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      lib_id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        description: Role can be "LibraryOwner", "LibraryAdmin", "Reader"
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /books:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all books in the inventory
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.BookInventory'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all books
+      tags:
+      - books
+    post:
+      consumes:
+      - application/json
+      description: Add a new book to the inventory
+      parameters:
+      - description: Book Data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.BookInventory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.BookInventory'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Add a new book
+      tags:
+      - books
+  /books/{isbn}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a book from the inventory by ISBN
+      parameters:
+      - description: Book ISBN
+        in: path
+        name: isbn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Available copy removed"}'
+          schema:
+            type: object
+        "400":
+          description: '{"error": "No available copies to remove"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "Book not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a book
+      tags:
+      - books
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a book by its ISBN
+      parameters:
+      - description: Book ISBN
+        in: path
+        name: isbn
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookInventory'
+        "404":
+          description: '{"error": "Book not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get a book by ISBN
+      tags:
+      - books
+    put:
+      consumes:
+      - application/json
+      description: Update the details of an existing book by ISBN
+      parameters:
+      - description: Book ISBN
+        in: path
+        name: isbn
+        required: true
+        type: string
+      - description: Updated Book Data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.BookInventory'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BookInventory'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "Book not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing book
+      tags:
+      - books
+  /libraries:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Library'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+    post:
+      consumes:
+      - application/json
+      description: Create a new library (only users with the role of 'Owner' can create
+        a library)
+      parameters:
+      - description: Library Data
+        in: body
+        name: library
+        required: true
+        schema:
+          $ref: '#/definitions/models.Library'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Library'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "403":
+          description: '{"error": "Only users with the role of ''Owner'' can create
+            a library"}'
+          schema:
+            type: object
+        "409":
+          description: '{"error": "Library with this name already exists"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new library
+      tags:
+      - libraries
+  /libraries/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a library by ID
+      parameters:
+      - description: Library ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "library deleted successfuly"}'
+          schema:
+            type: object
+        "404":
+          description: '{"message": "library not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"message": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a library
+      tags:
+      - libraries
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Log in a user and return a JWT token
+      parameters:
+      - description: User Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.Credentials'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"token": "token string", "role": "user role", "id": "user
+            ID"}'
+          schema:
+            type: object
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "401":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Log in a user
+      tags:
+      - auth
+  /requests:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.RequestEvent'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+  /requests/{id}:
+    get:
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RequestEvent'
+        "404":
+          description: '{"error": "Request not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+  /requests/{id}/approve:
+    post:
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Approver Data
+        in: body
+        name: approver
+        required: true
+        schema:
+          $ref: '#/definitions/models.RequestEvent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "Issue request approved", "issue": models.IssueRegistry}'
+          schema:
+            type: object
+        "400":
+          description: '{"error": "Invalid request body"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "Request not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+  /requests/{id}/reject:
+    post:
+      parameters:
+      - description: Request ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: '{"message": "Issue request rejected"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "Request not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+  /requests/pending:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.RequestEvent'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Sign up a new user
+      tags:
+      - auth
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Get all users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "User deleted"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "User not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "404":
+          description: '{"error": "User not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Get a user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "404":
+          description: '{"error": "User not found"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      summary: Update a user
+      tags:
+      - users
+  /users/admin:
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin user with role "LibraryAdmin"
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new admin
+      tags:
+      - users
+  /users/admins:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all admin users with role "LibraryAdmin"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "500":
+          description: '{"error": "error message"}'
+          schema:
+            type: object
+      security:
+      - ApiKeyAuth: []
+      summary: Get all admins
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

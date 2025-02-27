@@ -2,13 +2,27 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
+
+// @Summary Raise an issue request
+// @Description Raise an issue request for a book
+// @Tags requests
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body models.RequestEvent true "Request Data"
+// @Success 201 {object} object "{"message": "Issue request raised", "request": models.RequestEvent}"
+// @Failure 400 {object} object "{"error": "error message"}"
+// @Failure 404 {object} object "{"error": "Book not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests/issue [post]
 
 func RaiseIssueRequest(c *gin.Context) {
 	var request models.RequestEvent
@@ -44,12 +58,34 @@ func RaiseIssueRequest(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Issue request raised", "request": request})
 }
 
+// @Summary Get all request events
+// @Description Retrieve all request events
+// @Tags requests
+// @Accept json
+// @Security ApiKeyAuth
+
+// @Produce json
+// @Success 200 {array} models.RequestEvent
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests [get]
 func GetRequestEvents(c *gin.Context) {
 	var requestEvents []models.RequestEvent
 	database.DB.Find(&requestEvents)
 	c.JSON(http.StatusOK, requestEvents)
 }
 
+// @Summary Get request event by ID
+// @Description Retrieve a request event by its ID
+// @Tags requests
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+
+// @Param id path string true "Request ID"
+// @Success 200 {object} models.RequestEvent
+// @Failure 404 {object} object "{"error": "Request not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests/{id} [get]
 func GetRequestEventsByID(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent
@@ -60,7 +96,16 @@ func GetRequestEventsByID(c *gin.Context) {
 	c.JSON(http.StatusOK, request)
 }
 
-// Get Pending Requests
+// @Summary Get pending requests
+// @Description Retrieve all pending requests
+// @Tags requests
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+
+// @Success 200 {array} models.RequestEvent
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests/pending [get]
 func GetPendingRequests(c *gin.Context) {
 	var requests []models.RequestEvent
 
@@ -72,6 +117,20 @@ func GetPendingRequests(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"requests": requests})
 }
 
+// @Summary Approve an issue request
+// @Description Approve an issue request by ID
+// @Tags requests
+// @Accept json
+// @Security ApiKeyAuth
+
+// @Produce json
+// @Param id path string true "Request ID"
+// @Param approver body models.RequestEvent true "Approver Data"
+// @Success 200 {object} object "{"message": "Issue request approved", "issue": models.IssueRegistry}"
+// @Failure 400 {object} object "{"error": "Invalid request body"}"
+// @Failure 404 {object} object "{"error": "Request not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests/{id}/approve [post]
 func ApproveIssueRequest(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent
@@ -136,6 +195,18 @@ func ApproveIssueRequest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Issue request approved", "issue": issue})
 }
 
+// @Summary Reject an issue request
+// @Description Reject an issue request by ID
+// @Tags requests
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+
+// @Param id path string true "Request ID"
+// @Success 200 {object} object "{"message": "Issue request rejected"}"
+// @Failure 404 {object} object "{"error": "Request not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /requests/{id}/reject [post]
 func RejectIssueRequest(c *gin.Context) {
 	reqID := c.Param("id")
 	var request models.RequestEvent

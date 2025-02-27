@@ -1,0 +1,10 @@
+package routes // import "online-library-system/routes"
+
+
+FUNCTIONS
+
+func AuthRoutes(router *gin.Engine)
+func BookRoutes(router *gin.Engine)
+func LibraryRoutes(router *gin.Engine)
+func RequestRoutes(router *gin.Engine)
+func UserRoutes(router *gin.Engine)

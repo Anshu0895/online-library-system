@@ -2,10 +2,6 @@ package controllers
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"online-library-system/database"
 	"online-library-system/models"
@@ -13,6 +9,11 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Config struct {
@@ -51,10 +52,9 @@ type Claims struct {
 // @Produce json
 // @Param user body models.User true "User Data"
 // @Success 201 {object} models.User
-// @Failure 400 {object} gin.H{"error": "error message"}
-// @Failure 500 {object} gin.H{"error": "error message"}
+// @Failure 400 {object} object "{"error": "error message"}"
+// @Failure 500 {object} object "{"error": "error message"}"
 // @Router /signup [post]
-
 func Signup(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -106,34 +106,20 @@ func Signup(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
-// Helper function to validate email
-func isValidEmail(email string) bool {
-	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
-	return re.MatchString(email)
-}
-
-// Helper function to check if a string is numeric
-func isNumeric(str string) bool {
-	_, err := strconv.Atoi(str)
-	return err == nil
-}
-
 // @Summary Log in a user
 // @Description Log in a user and return a JWT token
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param credentials body models.Credentials true "User Credentials"
-// @Success 200 {object} gin.H{"token": "token string", "role": "user role", "id": "user ID"}
-// @Failure 400 {object} gin.H{"error": "error message"}
-// @Failure 401 {object} gin.H{"error": "error message"}
-// @Failure 500 {object} gin.H{"error": "error message"}
-
+// @Param credentials body models.Credentials  true "User Credentials"
+// @Success 200 {object} object "{"token": "token string", "role": "user role", "id": "user ID"}"
+// @Failure 400 {object} object "{"error": "error message"}"
+// @Failure 401 {object} object "{"error": "error message"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /login [post]
 func Login(c *gin.Context) {
-	var credentials struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+
+	var credentials models.Credentials
 	if err := c.ShouldBindJSON(&credentials); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -179,4 +165,16 @@ func GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	result := database.DB.Where("email = ?", email).First(&user)
 	return &user, result.Error
+}
+
+// Helper function to validate email
+func isValidEmail(email string) bool {
+	re := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	return re.MatchString(email)
+}
+
+// Helper function to check if a string is numeric
+func isNumeric(str string) bool {
+	_, err := strconv.Atoi(str)
+	return err == nil
 }

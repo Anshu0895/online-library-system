@@ -1,14 +1,21 @@
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
 package main
 
 import (
+	"log"
+	"online-library-system/database"
+	_ "online-library-system/docs" // This line is necessary for go-swagger to find your docs
+	"online-library-system/routes"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	cors "github.com/rs/cors/wrapper/gin"
-	"log"
-	"online-library-system/database"
-	// "online-library-system/docs"
-	"online-library-system/routes"
-	"os"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 type Config struct {
@@ -49,7 +56,8 @@ func main() {
 	routes.UserRoutes(router)
 	routes.RequestRoutes(router)
 
-	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Integrate Swagger
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.Run(":8080")
 }

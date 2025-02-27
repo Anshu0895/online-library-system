@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
+
 	// "gorm.io/gorm"
 	// "gorm.io/gorm/logger"
 	"net/http"
@@ -11,6 +13,17 @@ import (
 	"strings"
 )
 
+// @Summary Add a new book
+// @Description Add a new book to the inventory
+// @Tags books
+// @Accept json
+// @Security ApiKeyAuth
+// @Produce json
+// @Param book body models.BookInventory true "Book Data"
+// @Success 201 {object} models.BookInventory
+// @Failure 400 {object} object "{"error": "error message"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books [post]
 func AddBook(c *gin.Context) {
 	var book models.BookInventory
 	if err := c.ShouldBindJSON(&book); err != nil {
@@ -35,6 +48,19 @@ func AddBook(c *gin.Context) {
 	c.JSON(http.StatusCreated, book)
 }
 
+// @Summary Update an existing book
+// @Description Update the details of an existing book by ISBN
+// @Tags books
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param isbn path string true "Book ISBN"
+// @Param book body models.BookInventory true "Updated Book Data"
+// @Success 200 {object} models.BookInventory
+// @Failure 400 {object} object "{"error": "error message"}"
+// @Failure 404 {object} object "{"error": "Book not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books/{isbn} [put]
 func UpdateBook(c *gin.Context) {
 	var book models.BookInventory
 	isbn := c.Param("isbn")
@@ -52,6 +78,16 @@ func UpdateBook(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, book)
 }
+
+// @Security ApiKeyAuth
+// @Summary Get all books
+// @Description Retrieve all books in the inventory
+// @Tags books
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.BookInventory
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books [get]
 func GetBooks(c *gin.Context) {
 	var books []models.BookInventory
 	if err := database.DB.Find(&books).Error; err != nil {
@@ -61,6 +97,17 @@ func GetBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, books)
 }
 
+// @Security ApiKeyAuth
+// @Summary Get a book by ISBN
+// @Description Retrieve a book by its ISBN
+// @Tags books
+// @Accept json
+// @Produce json
+// @Param isbn path string true "Book ISBN"
+// @Success 200 {object} models.BookInventory
+// @Failure 404 {object} object "{"error": "Book not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books/{isbn} [get]
 func GetBook(c *gin.Context) {
 	var book models.BookInventory
 	isbn := c.Param("isbn")
@@ -69,6 +116,19 @@ func GetBook(c *gin.Context) {
 		return
 	}
 }
+
+// @Security ApiKeyAuth
+// @Summary Remove a book
+// @Description Remove a book from the inventory by ISBN
+// @Tags books
+// @Accept json
+// @Produce json
+// @Param isbn path string true "Book ISBN"
+// @Success 200 {object} object "{"message": "Available copy removed"}"
+// @Failure 400 {object} object "{"error": "No available copies to remove"}"
+// @Failure 404 {object} object "{"error": "Book not found"}"
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books/{isbn} [delete]
 func RemoveBook(c *gin.Context) {
 	var book models.BookInventory
 	isbn := c.Param("isbn")
@@ -93,6 +153,20 @@ func RemoveBook(c *gin.Context) {
 	}
 }
 
+// @Security ApiKeyAuth
+// @Summary Search for books
+// @Description Search for books by title, author, publisher, or status
+// @Tags books
+// @Accept json
+// @Produce json
+// @Param title query string false "Book Title"
+// @Param author query string false "Book Author"
+// @Param publisher query string false "Book Publisher"
+// @Param status query string false "Book Status"
+// @Success 200 {array} models.BookInventory
+// @Failure 500 {object} object "{"error": "error message"}"
+// @Router /books/search [get]
+
 func SearchBooks(c *gin.Context) {
 	title := c.Query("title")
 	author := c.Query("author")
@@ -100,9 +174,7 @@ func SearchBooks(c *gin.Context) {
 	status := c.Query("status")
 
 	var books []models.BookInventory
-	// query := database.DB.Session(&gorm.Session{
-	// 	Logger: logger.Default.LogMode(logger.Info),
-	// })
+
 	query := database.DB
 	if title != "" {
 		query = query.Where("LOWER(title) LIKE ?", "%"+strings.ToLower(title)+"%")

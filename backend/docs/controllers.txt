@@ -1,0 +1,176 @@
+package controllers // import "online-library-system/controllers"
+
+
+FUNCTIONS
+
+func AddBook(c *gin.Context)
+    @Summary Add a new book @Description Add a new book to the inventory
+    @Tags books @Accept json @Security ApiKeyAuth @Produce json @Param
+    book body models.BookInventory true "Book Data" @Success 201 {object}
+    models.BookInventory @Failure 400 {object} object "{"error": "error
+    message"}" @Failure 500 {object} object "{"error": "error message"}" @Router
+    /books [post]
+
+func ApproveIssueRequest(c *gin.Context)
+    @Produce json @Param id path string true "Request ID" @Param approver
+    body models.RequestEvent true "Approver Data" @Success 200 {object} object
+    "{"message": "Issue request approved", "issue": models.IssueRegistry}"
+    @Failure 400 {object} object "{"error": "Invalid request body"}" @Failure
+    404 {object} object "{"error": "Request not found"}" @Failure 500 {object}
+    object "{"error": "error message"}" @Router /requests/{id}/approve [post]
+
+func CreateAdmin(c *gin.Context)
+    @Summary Create a new admin @Description Create a new admin user with
+    role "LibraryAdmin" @Tags users @Accept json @Produce json @Security
+    ApiKeyAuth @Param user body models.User true "User Data" @Success 201
+    {object} models.User @Failure 400 {object} object "{"error": "error
+    message"}" @Failure 500 {object} object "{"error": "error message"}" @Router
+    /users/admin [post]
+
+func CreateLibrary(c *gin.Context)
+    @Summary Create a new library @Description Create a new library (only users
+    with the role of 'Owner' can create a library) @Tags libraries @Security
+    ApiKeyAuth @Accept json @Produce json @Param library body models.Library
+    true "Library Data" @Success 201 {object} models.Library @Failure 400
+    {object} object "{"error": "error message"}" @Failure 409 {object} object
+    "{"error": "Library with this name already exists"}" @Failure 403 {object}
+    object "{"error": "Only users with the role of 'Owner' can create a
+    library"}" @Failure 500 {object} object "{"error": "error message"}" @Router
+    /libraries [post]
+
+func CreateUser(user *models.User) error
+    Service function to create a user in the database
+
+func DeleteLibrary(c *gin.Context)
+    @Summary Delete a library @Description Delete a library by ID @Tags
+    libraries @Accept json @Produce json @Security ApiKeyAuth @Param id
+    path string true "Library ID" @Success 200 {object} object "{"message":
+    "library deleted successfuly"}" @Failure 404 {object} object "{"message":
+    "library not found"}" @Failure 500 {object} object "{"message": "error
+    message"}" @Router /libraries/{id} [delete]
+
+func DeleteUser(c *gin.Context)
+    @Summary Delete a user @Description Delete a user by their ID @Tags users
+    @Accept json @Produce json @Param id path string true "User ID" @Success
+    200 {object} object "{"message": "User deleted"}" @Failure 404 {object}
+    object "{"error": "User not found"}" @Failure 500 {object} object "{"error":
+    "error message"}" @Router /users/{id} [delete]
+
+func GetAdmins(c *gin.Context)
+    @Summary Get all admins @Description Retrieve all admin users with role
+    "LibraryAdmin" @Tags users @Accept json @Produce json @Security ApiKeyAuth
+    @Success 200 {array} models.User @Failure 500 {object} object "{"error":
+    "error message"}" @Router /users/admins [get]
+
+func GetBook(c *gin.Context)
+    @Security ApiKeyAuth @Summary Get a book by ISBN @Description Retrieve a
+    book by its ISBN @Tags books @Accept json @Produce json @Param isbn path
+    string true "Book ISBN" @Success 200 {object} models.BookInventory @Failure
+    404 {object} object "{"error": "Book not found"}" @Failure 500 {object}
+    object "{"error": "error message"}" @Router /books/{isbn} [get]
+
+func GetBooks(c *gin.Context)
+    @Security ApiKeyAuth @Summary Get all books @Description Retrieve all
+    books in the inventory @Tags books @Accept json @Produce json @Success
+    200 {array} models.BookInventory @Failure 500 {object} object "{"error":
+    "error message"}" @Router /books [get]
+
+func GetLibraries(c *gin.Context)
+    @Success 200 {array} models.Library @Failure 500 {object} object "{"error":
+    "error message"}" @Router /libraries [get]
+
+func GetPendingRequests(c *gin.Context)
+    @Success 200 {array} models.RequestEvent @Failure 500 {object} object
+    "{"error": "error message"}" @Router /requests/pending [get]
+
+func GetRequestEvents(c *gin.Context)
+    @Produce json @Success 200 {array} models.RequestEvent @Failure 500 {object}
+    object "{"error": "error message"}" @Router /requests [get]
+
+func GetRequestEventsByID(c *gin.Context)
+    @Param id path string true "Request ID" @Success 200 {object}
+    models.RequestEvent @Failure 404 {object} object "{"error": "Request not
+    found"}" @Failure 500 {object} object "{"error": "error message"}" @Router
+    /requests/{id} [get]
+
+func GetUser(c *gin.Context)
+    @Summary Get a user by ID @Description Retrieve a user by their ID @Tags
+    users @Accept json @Produce json @Param id path string true "User ID"
+    @Success 200 {object} models.User @Failure 404 {object} object "{"error":
+    "User not found"}" @Failure 500 {object} object "{"error": "error message"}"
+    @Router /users/{id} [get]
+
+func GetUserByEmail(email string) (*models.User, error)
+    Service function to get a user by email from the database
+
+func GetUsers(c *gin.Context)
+    @Summary Get all users @Description Retrieve all users @Tags users @Accept
+    json @Produce json @Success 200 {array} models.User @Failure 500 {object}
+    object "{"error": "error message"}" @Router /users [get]
+
+func Login(c *gin.Context)
+    @Summary Log in a user @Description Log in a user and return a JWT
+    token @Tags auth @Accept json @Produce json @Param credentials body
+    models.Credentials true "User Credentials" @Success 200 {object} object
+    "{"token": "token string", "role": "user role", "id": "user ID"}" @Failure
+    400 {object} object "{"error": "error message"}" @Failure 401 {object}
+    object "{"error": "error message"}" @Failure 500 {object} object "{"error":
+    "error message"}" @Router /login [post]
+
+func RaiseIssueRequest(c *gin.Context)
+func RejectIssueRequest(c *gin.Context)
+    @Param id path string true "Request ID" @Success 200 {object} object
+    "{"message": "Issue request rejected"}" @Failure 404 {object} object
+    "{"error": "Request not found"}" @Failure 500 {object} object "{"error":
+    "error message"}" @Router /requests/{id}/reject [post]
+
+func RemoveBook(c *gin.Context)
+    @Security ApiKeyAuth @Summary Remove a book @Description Remove a book from
+    the inventory by ISBN @Tags books @Accept json @Produce json @Param isbn
+    path string true "Book ISBN" @Success 200 {object} object "{"message":
+    "Available copy removed"}" @Failure 400 {object} object "{"error":
+    "No available copies to remove"}" @Failure 404 {object} object "{"error":
+    "Book not found"}" @Failure 500 {object} object "{"error": "error message"}"
+    @Router /books/{isbn} [delete]
+
+func SearchBooks(c *gin.Context)
+func Signup(c *gin.Context)
+    @Summary Sign up a new user @Description Register a new user @Tags auth
+    @Accept json @Produce json @Param user body models.User true "User Data"
+    @Success 201 {object} models.User @Failure 400 {object} object "{"error":
+    "error message"}" @Failure 500 {object} object "{"error": "error message"}"
+    @Router /signup [post]
+
+func UpdateBook(c *gin.Context)
+    @Summary Update an existing book @Description Update the details
+    of an existing book by ISBN @Tags books @Accept json @Produce json
+    @Security ApiKeyAuth @Param isbn path string true "Book ISBN" @Param
+    book body models.BookInventory true "Updated Book Data" @Success 200
+    {object} models.BookInventory @Failure 400 {object} object "{"error":
+    "error message"}" @Failure 404 {object} object "{"error": "Book not
+    found"}" @Failure 500 {object} object "{"error": "error message"}" @Router
+    /books/{isbn} [put]
+
+func UpdateUser(c *gin.Context)
+    @Summary Update a user @Description Update a user by their ID @Tags users
+    @Accept json @Produce json @Param id path string true "User ID" @Param user
+    body models.User true "Updated User Data" @Success 200 {object} models.User
+    @Failure 400 {object} object "{"error": "error message"}" @Failure 404
+    {object} object "{"error": "User not found"}" @Failure 500 {object} object
+    "{"error": "error message"}" @Router /users/{id} [put]
+
+
+TYPES
+
+type Claims struct {
+	UserID uint   `json:"user_id"`
+	Role   string `json:"role"`
+	jwt.StandardClaims
+}
+
+type Config struct {
+	//   DBConnectionString string
+	ServerPort   string
+	JWTSecretKey string
+}
+
